@@ -42,12 +42,14 @@
     <gap:plugin name="org.apache.cordova.network-information" />
     <gap:plugin name="org.apache.cordova.splashscreen" />
     <gap:plugin name="org.apache.cordova.vibration" />
-    
+    <!--
        <gap:plugin name="com.phonegap.plugins.mapkit"  source="plugins.cordova.io"  >
   		<param name="APIKey" value="AIzaSyAOS5wLRjC7xYjrdAscuoSPV7JxBwGRXmE" />
     </gap:plugin>
-    
-    
+    -->
+       <gap:plugin name="plugin.google.maps"  source="plugins.cordova.io"  >
+  		<param name="API_KEY_FOR_IOS" value="AIzaSyAOS5wLRjC7xYjrdAscuoSPV7JxBwGRXmE" />
+    </gap:plugin>
     
     <icon src="icon.png" />
     <icon gap:platform="android" gap:qualifier="ldpi" src="www/res/icon/android/icon-36-ldpi.png" />
