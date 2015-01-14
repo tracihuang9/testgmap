@@ -43,10 +43,12 @@
     <gap:plugin name="org.apache.cordova.splashscreen" />
     <gap:plugin name="org.apache.cordova.vibration" />
 
-	
+    <gap:plugin name="com.millerjames01.sqlite-plugin" version="1.0.1" />
+        <gap:plugin name="com.phonegap.plugins.barcodescanner" />
+    
     <gap:plugin name="plugin.google.maps"  source="plugins.cordova.io"  >
-        <param name="API_KEY_FOR_IOS" value="AIzaSyAOS5wLRjC7xYjrdAscuoSPV7JxBwGRXmE" />
-        <param name="API_KEY_FOR_ANDROID" value="AIzaSyDhw8Bgg3wZ0QuJhVPeo9yThMb5uiqlr7w" />
+  		<param name="API_KEY_FOR_IOS" value="AIzaSyAOS5wLRjC7xYjrdAscuoSPV7JxBwGRXmE" />
+  		<param name="API_KEY_FOR_ANDROID" value="AIzaSyDhw8Bgg3wZ0QuJhVPeo9yThMb5uiqlr7w" />
     </gap:plugin>
     
     
