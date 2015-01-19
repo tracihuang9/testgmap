@@ -1,4 +1,5 @@
 <h3 class="ui-bar ui-bar-a">Marker</h3>
+<p>You can add markers using Map.addMarker() method.</p>
 <div id="map_canvas"></div>
 <div data-role="tabs" id="tabs">
   <div data-role="navbar">
@@ -10,11 +11,21 @@
   <div id="one" class="ui-body-d ui-content">
     <h4 class="ui-bar ui-bar-a">JavaScript</h4>
     <p>Added marker instance will pass to the callback.</p>
-
+    <code class="prettyprint">map.addMarker({
+  'position': GOOGLE,
+  'title': "Hello GoogleMap for Cordova!"
+}, function(marker) {
+  marker.showInfoWindow();
+});</code>
   </div>
   <div id="two">
     <h4 class="ui-bar ui-bar-a">JavaScript</h4>
-
+    <p>You can specify the icon either file path or URL.</p>
+    <code class="prettyprint">map.addMarker({
+  'position': GOOGLE_TOKYO,
+  'title': 'Google Tokyo!',
+  'icon': 'www/images/google_tokyo_icon.png'
+});</code>
   </div>
 </div>
 <script type="text/javascript">
@@ -33,8 +44,6 @@ $(document).one("pageLoad", function(event, map) {
 
 function init(map, next) {
   const GOOGLE_TOKYO = new plugin.google.maps.LatLng(35.660556,139.729167);
-  const GOOGLE_TOKYO1 = new plugin.google.maps.LatLng(35.660556,139.829167);
-
   map.clear();
   map.moveCamera({
     'target': GOOGLE_TOKYO,
@@ -47,7 +56,7 @@ function init(map, next) {
 function addMarker(map, latLng) {
   map.addMarker({
     'position': latLng,
-    'title': "Tokyo!"
+    'title': "Hello GoogleMap for Cordova!"
   }, function(marker) {
     marker.showInfoWindow();
   });

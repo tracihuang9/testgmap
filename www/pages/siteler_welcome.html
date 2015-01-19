@@ -1,0 +1,163 @@
+<style type="text/css">
+	#map_canvas {
+		position: fixed;
+		width: auto;
+		height: auto;
+	}
+	#introduction {
+		position: fixed;
+		background-color: #966D73;
+		padding: 10px;
+		color: white;
+		line-height: 1.5em;
+		background-size: 25%;
+		background-position: right bottom;
+		background-repeat: no-repeat;
+	}
+	@media only screen and (orientation: portrait) {
+		/* For portrait layouts only */
+		#map_canvas {
+			top: 50px;
+			left: 0;
+			right: 0;
+			bottom: 33%;
+		}
+
+		#introduction {
+			top: 68%;
+			left: 0;
+			right: 0;
+			bottom: 10px;
+		}
+	}
+
+	@media only screen and (orientation: landscape) {
+		/* For landscape layouts only */
+		#map_canvas {
+			top: 50px;
+			left: 50%;
+			right: 0;
+			bottom: 5%;
+		}
+
+		#introduction {
+			top: 70px;
+			right: 50%;
+			left: 0;
+			bottom: auto;
+		}
+	}
+	.title {
+		font-size: 1.3em;
+		font-weight: bold;
+	}
+	#demoBtn {
+		position: absolute !important;
+		left: 20% !important;
+		width: 60% !important;
+		bottom: 5% !important;
+	}
+
+	#infoWnd_frame {
+		position: absolute;
+		width: 200px;
+		height: 144px;
+		background-image: url("images/myinfo.png");
+		background-size: contain;
+	}
+	#infoWnd_body {
+		position: absolute;
+		width: 144px;
+		height: 66px;
+		left: 24px;
+		top: 28px;
+	}
+</style>
+<div id="map_canvas">
+
+</div>
+
+<div id="introduction" >
+
+	
+        Siteler Wash were rated as the No. 1 onsite car wash & detail service provider in San Francisco, peninsular, south bay & east bay area. Our service area is fast expanding.	
+</div>
+
+<script type="text/javascript">
+	$(document).one("pageLoad", function(event, map) {
+
+		init(map, addheadquarterMarker, 37.363369, -121.890160);
+		
+		showMyLocation(map);
+		
+		
+	});
+
+	function init(map, next, lat, alt) {
+		const LatLng = new plugin.google.maps.LatLng(lat, alt);
+
+		map.clear();
+		map.moveCamera({
+			'target' : LatLng,
+			'tilt' : 90,
+			'zoom' : 7,
+			'bearing' : 0
+		});
+		next(map, LatLng);
+	}
+
+	function addMarker(map, latLng) {
+		map.addMarker({
+			'position' : latLng,
+			'title' : "i am here",
+			'icon' : '/www/images/yellow-1.png'
+
+		}, function(marker) {
+			marker.showInfoWindow();
+		});
+	}
+
+	function addIconMarker(map, latLng) {
+		map.addMarker({
+			'position' : latLng,
+			'title' : 'job site',
+			'icon' : '/www/images/google_tokyo_icon.png'
+		});
+	}
+
+	function addheadquarterMarker(map, latLng) {
+		map.addMarker({
+			'position' : latLng,
+			'title' : 'Siteler headquarter.',
+			'icon' : '/www/images/google_tokyo_icon.png'
+		});
+	}
+
+	function showMyLocation(map) {
+	//	map.clear();
+
+		var success = function(location) {
+
+		/*	map.moveCamera({
+				'target' : location.latLng,
+				'tilt' : 90,
+				'zoom' : 7,
+				'bearing' : 0
+			});
+			*/
+			addMarker(map, location.latLng);
+
+		};
+
+		var error = function(result) {
+			app.showAlert("ERROR\n---\n" + result.error_message);
+		};
+
+		map.getMyLocation({
+			enableHighAccuracy : true
+		}, success, error);
+	}
+
+</script>
+
+</code>

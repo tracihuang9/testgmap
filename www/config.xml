@@ -1,6 +1,6 @@
 <?xml version='1.0' encoding='utf-8'?>
 <widget id="com.xinlutang.SitelerApp" version="1.0.0" xmlns="http://www.w3.org/ns/widgets" xmlns:gap="http://phonegap.com/ns/1.0">
-    <name>TestGmap-firstpage</name>
+    <name>TestGmap</name>
     <description>
         Hello World sample application that responds to the deviceready event.
     </description>
@@ -42,15 +42,15 @@
     <gap:plugin name="org.apache.cordova.network-information" />
     <gap:plugin name="org.apache.cordova.splashscreen" />
     <gap:plugin name="org.apache.cordova.vibration" />
-
-    <gap:plugin name="com.millerjames01.sqlite-plugin" version="1.0.1" />
-        <gap:plugin name="com.phonegap.plugins.barcodescanner" />
-    
+    <!--
+       <gap:plugin name="com.phonegap.plugins.mapkit"  source="plugins.cordova.io"  >
+  		<param name="APIKey" value="AIzaSyAOS5wLRjC7xYjrdAscuoSPV7JxBwGRXmE" />
+    </gap:plugin>
+    -->
     <gap:plugin name="plugin.google.maps"  source="plugins.cordova.io"  >
   		<param name="API_KEY_FOR_IOS" value="AIzaSyAOS5wLRjC7xYjrdAscuoSPV7JxBwGRXmE" />
   		<param name="API_KEY_FOR_ANDROID" value="AIzaSyDhw8Bgg3wZ0QuJhVPeo9yThMb5uiqlr7w" />
     </gap:plugin>
-    
     
     <icon src="icon.png" />
     <icon gap:platform="android" gap:qualifier="ldpi" src="www/res/icon/android/icon-36-ldpi.png" />

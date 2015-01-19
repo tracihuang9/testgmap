@@ -95,7 +95,40 @@ $(document).one("pageLeave", function() {
 });
 $(document).one("pageLoad", function(event, map) {
   
- 
+  $("#demoBtn").click(function() {
+    $("#infoWnd_frame").trigger("remove");
+    
+    map.clear();
+    
+    map.moveCamera({
+      'zoom': 0,
+      'tilt': 0
+    });
+    
+    map.getMyLocation({
+      enableHighAccuracy: true
+    }, function(location) {
+      map.addMarker({
+        'position': location.latLng,
+        "mytitle": ["Hello Google Map", "for PhoneGap &", "Apache Cordova!"].join("\n")
+      }, function(marker) {
+        marker.on(plugin.google.maps.event.MARKER_CLICK, onMarkerClicked);
+        
+        map.animateCamera({
+          'target': location.latLng,
+          'zoom': 17,
+          'tilt': 80
+        }, function() {
+          setTimeout(function() {
+            marker.trigger(plugin.google.maps.event.MARKER_CLICK);
+          }, 1500);
+        });
+      }, function(error) {
+        alert(error.message);
+      });
+      
+    });
+  });
 });
 function onMarkerClicked() {
   var marker = this;
