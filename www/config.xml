@@ -56,8 +56,8 @@
     </gap:plugin>
     -->
     <gap:plugin name="plugin.google.maps"  source="plugins.cordova.io"  >
-  		<param name="API_KEY_FOR_IOS" value="AIzaSyAOS5wLRjC7xYjrdAscuoSPV7JxBwGRXmE" />
-  		<param name="API_KEY_FOR_ANDROID" value="AIzaSyDhw8Bgg3wZ0QuJhVPeo9yThMb5uiqlr7w" />
+  	<!--	<param name="API_KEY_FOR_IOS" value="AIzaSyAOS5wLRjC7xYjrdAscuoSPV7JxBwGRXmE" /> -->
+  		<param name="API_KEY_FOR_ANDROID" value="AIzaSyDGAT12XH3bHLzCnjS5qyqf2JWsn_MW62Q" />
     </gap:plugin>
     
     <icon src="icon.png" />
