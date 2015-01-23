@@ -1,0 +1,235 @@
+<style type="text/css">
+	#map_canvas {
+		position: fixed;
+		width: auto;
+		height: auto;
+	}
+	#introduction {
+		position: fixed;
+		background-color: #966D73;
+		padding: 10px;
+		color: white;
+		line-height: 1.5em;
+		background-size: 25%;
+		background-position: right bottom;
+		background-repeat: no-repeat;
+	}
+	@media only screen and (orientation: portrait) {
+		/* For portrait layouts only */
+		#map_canvas {
+			top: 50px;
+			left: 0;
+			right: 0;
+			bottom: 33%;
+		}
+
+		#introduction {
+			top: 68%;
+			left: 0;
+			right: 0;
+			bottom: 10px;
+		}
+	}
+
+	@media only screen and (orientation: landscape) {
+		/* For landscape layouts only */
+		#map_canvas {
+			top: 50px;
+			left: 50%;
+			right: 0;
+			bottom: 5%;
+		}
+
+		#introduction {
+			top: 70px;
+			right: 50%;
+			left: 0;
+			bottom: auto;
+		}
+	}
+	.title {
+		font-size: 1.3em;
+		font-weight: bold;
+	}
+
+</style>
+<div id="map_canvas">
+
+</div>
+
+<div id="introduction" >
+
+	<form>
+
+		<table >
+			<tr>
+				<td >
+				<select name="service_city" id="service_city" >
+					   					     <option value='' disabled selected style='display:none;'>City</option>
+				</select>
+				
+
+				</td>
+				<td>
+				<select name="service_state" id="service_state" onchange="updateCityList();" >
+   					     <option value='' disabled selected style='display:none;'>State</option>
+
+				</select>
+				</td>
+
+			</tr>
+
+			<tr>
+				<td >
+				<input type="text" name="service_zip" id="service_zip" placeholder="zip code"/>
+				</td>
+				<td>
+				<button id="service_checkBtn" name="service_checkBtn">Check Service Area</button>
+				</td>
+				
+
+			</tr>
+		</table>
+	</form>
+</div>
+
+<script type="text/javascript">
+ function updateCityList()
+  {
+  alert("change");
+  }
+  $( document ).ready(function() {
+  	var url="http://www.pineconetassel.com/sitelertest/test_zip.php";
+  	var city_list;
+  $.ajax({
+	dataType: "json",
+	url: url,
+	type : 'POST',
+	data:{},
+	success: function(data) {
+	city_list = data;
+	//alert("OK");
+		$.each(data, function(state, city){
+		//alert(state, city.city[0]);
+		//console.log(state+":"+city);
+		var text; 
+		
+		
+		if(state ==="CA")
+		{	//alert(state);
+			//$('#service_state').append( new Option(state,state, true, true) );
+			// $('#service_state').append($('<option selected="selected">', { state : state }).text(state));
+			text += '<option selected="selected">'+state+'</option>';
+		}
+		else
+		{
+			text += '<option selected>'+state+'</option>';
+		
+			//$('#service_state').append( $('<option >', { state : state }).text(state));
+		}
+		$('#service_state').append(text);
+		
+		  	$.each(city, function(i,city){
+		  		$('#service_city').append( $('<option >', { city : city }).text(city) );
+		  			   	console.log(city);
+		  	});
+	   	console.log(state);
+		});
+		},
+	error : function() {
+			alert("error");		console.log("error");
+				//app.showAlert('There was an error in registration form', 'ERROR');
+			}
+	});
+ 
+
+});
+  
+  
+
+
+	$("#service_checkBtn").click(function() {
+		//alert("ok");
+		//$("#introduction").empty();
+		loadDivHtml("introduction", "checkServiceArea");
+
+	});
+
+	$(document).one("pageLoad", function(event, map) {
+
+		init(map, addheadquarterMarker, 37.363369, -121.890160);
+
+		showMyLocation(map);
+
+	});
+
+	function init(map, next, lat, alt) {
+		const LatLng = new plugin.google.maps.LatLng(lat, alt);
+
+		map.clear();
+		map.moveCamera({
+			'target' : LatLng,
+			'tilt' : 90,
+			'zoom' : 8,
+			'bearing' : 0
+		});
+		next(map, LatLng);
+	}
+
+	function addMarker(map, latLng) {
+		map.addMarker({
+			'position' : latLng,
+			'title' : "i am here",
+			'icon' : 'www/images/red-1.png'
+
+		}, function(marker) {
+			marker.showInfoWindow();
+		});
+	}
+
+	function addIconMarker(map, latLng) {
+		map.addMarker({
+			'position' : latLng,
+			'title' : 'job site',
+			'icon' : 'www/images/red-1.png'
+		});
+	}
+
+	function addheadquarterMarker(map, latLng) {
+		map.addMarker({
+			'position' : latLng,
+			'title' : 'Siteler headquarter.',
+			'icon' : 'www/images/google_tokyo_icon.png'
+		});
+	}
+
+	function showMyLocation(map) {
+		//	map.clear();
+
+		var success = function(location) {
+
+			/*	map.moveCamera({
+			 'target' : location.latLng,
+			 'tilt' : 90,
+			 'zoom' : 7,
+			 'bearing' : 0
+			 });
+			 */
+			addMarker(map, location.latLng);
+
+		};
+
+		var error = function(result) {
+			//	alert("ERROR\n---\n" + result.error_message);
+			//			app.showAlert("ERROR\n---\n" + result.error_message);
+
+		};
+
+		map.getMyLocation({
+			enableHighAccuracy : true
+		}, success, error);
+	}
+
+</script>
+
+</code>

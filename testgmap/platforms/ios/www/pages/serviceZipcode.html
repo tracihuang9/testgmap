@@ -1,0 +1,47 @@
+<h3 class="ui-bar ui-bar-a">Check Service Area </h3>
+<p>Siteler Wash were rated as the No. 1 onsite car wash & detail service provider in San Francisco, Bay area. Our service area is fast expanding.</p>
+<div id="map_canvas" >
+  <table style="width:90%;margin:1% 1% 1% 30px;">
+    <tr>
+      <td width="70%"><input id="service_zip" style="width: 100%" placeholder="You Zipcode"/></td>
+      <td width="30%"><button id="searchBtn">Check</button></td>
+    </tr>
+  </table>
+</div>
+
+
+
+<script type="text/javascript">
+
+$(document).one("pageLeave", function(event, map) {
+  map.setDebuggable(false);
+});
+$(document).one("pageLoad", function(event, map) {
+  const SITELER = new plugin.google.maps.LatLng(37.363369, -121.890160);
+  map.setDebuggable(true);
+  
+  map.moveCamera({
+    'target': SITELER,
+    'tilt': 60,
+    'zoom': 7,
+    'bearing': 0
+  });
+
+  map.setDiv($("#map_canvas")[0]);
+  
+  map.addMarker({
+			'position' : SITELER,
+			'title' : 'Siteler headquarter.',
+			'icon' : 'www/images/red-1.png'
+		});
+  $("#map_canvas").css({
+    "position": "relative"
+  });
+  $("#searchBtn").click(function() {
+  	var zip=$('#service_zip').val();
+  	alert(zip);
+  
+  });
+});
+
+</script>

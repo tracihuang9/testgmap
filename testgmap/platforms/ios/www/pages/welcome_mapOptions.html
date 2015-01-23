@@ -1,0 +1,89 @@
+
+<div id="map_canvas"></div>
+  
+				<div data-role="collapsible" data-collapsed="false">
+					<ul data-role="listview" data-shadow="false" data-inset="false" data-corners="false" style="opacity: 0.85;background: transparent;">
+					
+						<li>
+							<a href="#worker_onsite_page">Check Service Area</a>
+						</li>
+						<li>
+							<a onclick = "load_worker_job_map()">Make an Appointment</a>
+						</li>
+					
+						<li>
+							<a  onclick="load_worker_schedule('all')" >Check Schedule</a>
+						</li>	<li>
+							<a href="#worker_view_account_page"   onclick="load_worker_statement()">Membership Card</a>
+						</li><li>
+							<a href="#worker_view_account_page"   onclick="load_worker_statement()">Join Siteler</a>
+						</li>
+					</ul>
+				</div>
+  
+
+
+
+<script type="text/javascript">
+$(document).one("pageLoad", function(event, map) {
+	init(map, addheadquarterMarker, 37.363369, -121.890160);
+
+		showMyLocation(map);
+});
+function init(map, next, lat, alt) {
+		const LatLng = new plugin.google.maps.LatLng(lat, alt);
+
+		map.clear();
+		map.moveCamera({
+			'target' : LatLng,
+			'tilt' : 90,
+			'zoom' : 8,
+			'bearing' : 0
+		});
+		next(map, LatLng);
+	}
+
+	function addMarker(map, latLng) {
+		map.addMarker({
+			'position' : latLng,
+			'title' : "i am here",
+			'icon' : 'www/images/red-1.png'
+
+		}, function(marker) {
+			marker.showInfoWindow();
+		});
+	}
+
+	function addIconMarker(map, latLng) {
+		map.addMarker({
+			'position' : latLng,
+			'title' : 'job site',
+			'icon' : 'www/images/red-1.png'
+		});
+	}
+
+	function addheadquarterMarker(map, latLng) {
+		map.addMarker({
+			'position' : latLng,
+			'title' : 'Siteler headquarter.',
+			'icon' : 'www/images/google_tokyo_icon.png'
+		});
+	}
+
+function showMyLocation(map) {
+
+		var success = function(location) {
+
+			addMarker(map, location.latLng);
+
+		};
+
+		var error = function(result) {
+	
+		};
+
+		map.getMyLocation({
+			enableHighAccuracy : true
+		}, success, error);
+	}
+</script>
