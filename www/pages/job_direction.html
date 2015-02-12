@@ -1,0 +1,66 @@
+<div id="one">
+	<div id="map_canvas"></div>
+
+</div>
+<button id="direction" data-ajax="false">
+	Click to get Job Site Direction
+</button>
+
+<script type="text/javascript">
+
+
+//var myLocation = null;
+
+
+	$(document).one("pageLoad", function(event, map) {
+		
+		 $("#direction").click(function() {
+				//	alert("ok");
+			app.showConfirm("Do you want to go?","Get Direction", ["Go to job site", "Cancel"],getDirection, null);
+
+		});
+		
+		function getDirection()
+		{
+				//alert("ok");
+				plugin.google.maps.external.launchNavigation({
+					"from" : myLocation,
+					"to" : SITELER
+				});
+		}
+		if(!map){
+			 var div = $("#map_canvas")[0];
+       		 map = plugin.google.maps.Map.getMap(div);
+		}
+		else
+		{
+			map.clear();
+			map.off();
+
+			map.setDiv($("#map_canvas")[0]);
+			map.setVisible(true);
+		}
+		
+		const SITELER = new plugin.google.maps.LatLng(37.421656, -122.085618);
+		map.moveCamera({
+			'target' : SITELER,
+			//'tilt' : 90,
+			'zoom' : 8,
+			'bearing' : 0
+		});
+
+		map.addMarker({
+			'position' : SITELER,
+			'title' : 'job site',
+			'icon' : 'www/images/green-1.png'
+		}, function(marker) {
+			marker.showInfoWindow();
+		});
+
+		showMyLocation(map);
+
+
+	
+	});
+
+</script>

@@ -1,21 +1,229 @@
 <!DOCTYPE html>
 <html>
-  <head>
-    <meta name="viewport" content="user-scalable=no, initial-scale=1, maximum-scale=1, minimum-scale=1, width=device-width, height=device-height" />
-    <meta charset="utf-8" />
-    <meta name="format-detection" content="telephone=no" />
-    <title>Google Maps Plugin for Cordova</title>
-    <link rel="stylesheet" href="css/jquery.mobile-1.4.4.min.css" />
-    <link rel="stylesheet" type="text/css" href="css/style.css" />
-    <link href="css/prettify.css" type="text/css" rel="stylesheet" />
-    <script src="js/jquery.min.js"></script>
-    <script src="js/jquery.mobile-1.4.4.min.js"></script>
-    <script type="text/javascript" src="cordova.js"></script>
-    <script type="text/javascript" src="js/example.js"></script>
-    <script src="js/prettify.js"></script>
-    
-    <style>
+	<head>
 
+		<!-- WARNING: for iOS 7, remove the width=device-width and height=device-height attributes. See https://issues.apache.org/jira/browse/CB-4323 -->
+		<meta name="viewport" content="user-scalable=no, initial-scale=1, maximum-scale=1, minimum-scale=1, width=device-width, height=device-height, target-densitydpi=device-dpi" />
+
+		<!--	<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, target-densitydpi=medium-dpi, user-scalable=0" /> -->
+		<!--
+		<meta name="viewport" content="user-scalable=no, initial-scale=1, maximum-scale=1, minimum-scale=1, width=device-width, height=device-height" />
+		-->
+		<meta charset="utf-8" />
+		<meta name="format-detection" content="telephone=no" />
+
+		<meta http-equiv="cache-control" content="no-cache" />
+		<meta http-equiv="pragma" content="no-cache" />
+		<link rel="stylesheet" href="js/datepicker/default.css" id="theme_base" />
+		<link rel="stylesheet" href="js/datepicker/default.date.css" id="theme_date" />
+		<link rel="stylesheet" href="js/datepicker/default.time.css" id="theme_time" />
+		<!--<link rel="stylesheet" href="css/jqm-demos.css" />-->
+
+		<title>Siteler App</title>
+		<link rel="stylesheet" href="css/jquery.mobile-1.4.4.min.css" />
+		<link rel="stylesheet" type="text/css" href="css/style.css" />
+		<link href="css/prettify.css" type="text/css" rel="stylesheet" />
+		<script src="js/jquery.min.js"></script>
+		<script src="js/jquery.mobile-1.4.4.min.js"></script>
+		<script src="js/prettify.js"></script>
+
+		<script>
+			$(document).on("pagecreate", function() {
+				//siteler_id='M0000186';
+				load_membershipcard_form();
+				load_service_list();
+				fillServiceOption("member");
+				fillServiceOption("one-time");
+				appointment_service_change();
+				//fillOption('customer_rating', customer_rating);
+				//loadPage(map, "job_direction");
+				//worker_check_schedule();
+			});
+			$(document).one("pageshow", function() {
+				$("body > [data-role='header']").toolbar();
+				$("body > [data-role='header'] [data-role='navbar']").navbar();
+			});
+		</script>
+
+		<script src="js/handlebars.js"></script>
+		<script id="customer-promotion-template" type="text/x-handlebars-template">
+			{{#promotions}}
+			<li data-role="list-divider">
+			<h2><strong>{{daterange}}</strong></h2>
+			</li>
+			{{#class}}
+			<li>
+			<p class="ui-li-aside">
+			<strong>{{rate}}</strong>
+			</p>
+			<h3>{{type}}</h3>
+			<p>
+			{{desc}}
+			</p>
+			</li>
+			{{/class}}
+			{{/promotions}}
+		</script>
+		<script id="worker-schedule-template" type="text/x-handlebars-template">
+			{{#appointments}}
+			{{#date}}
+			<li data-role="list-divider">
+			{{date}} <span class="ui-li-count">{{numberofelements}}</span>
+			</li>
+			{{/date}}{{#jobs}}
+			<li>
+			<a onclick="load_job_detail({{slotid}},'{{status}}')">
+			<p>
+			<strong>{{address}}</strong>
+			</p>
+			<p class="ui-li-aside">
+			<strong>{{timerange}}</strong>
+			</p>
+			</a>
+			</li>
+			{{/jobs}}{{/appointments}}
+		</script>
+
+		<script id="worker-earning-template" type="text/x-handlebars-template">
+			{{#earnings}}
+			<h3>Total Earning:   <span>{{total}}</span></h3>
+
+			{{#jobs}}
+			<ul data-role="listview" data-inset="true">
+
+			<li>
+			<h4>{{date}}  {{timerange}}<strong>  {{earning}}</strong></h4>
+			<p><strong> Vehicle:</strong> {{vehicle}} </p>
+			<p>	<strong>Location: </strong>{{address}}</p>
+
+			</li>
+			</ul>
+			{{/jobs}}
+			{{/earnings}}
+
+		</script>
+
+		<script id="customer-schedule-template" type="text/x-handlebars-template">
+			{{#appointments}}
+			{{#date}}
+			<li data-role="list-divider">
+			<h1><strong>{{date}}</strong></h1> <span class="ui-li-count">{{numberofelements}}</span>
+			</li>
+			{{/date}}
+			{{#jobs}}
+			<li>
+			<p class="ui-li-aside">
+			<strong>{{status}}</strong>
+			</p>
+			<p >
+			<strong>{{timerange}}</strong>
+			</p>
+			<h3>{{vehicle}}</h3>
+			<p>
+			Plate: {{plate}}
+			</p>
+			<p>
+			Location: {{location}}
+			</p>
+			<p>
+			Service: {{service}}
+			</p>
+			<p>
+			Cost: ${{amount}}
+			</p>
+			<p><a onclick="reschedule_appointmnet_page({{appid}})"> reschedule this job </a></p>
+			<p><a onclick="load_rating_page({{appid}})"> rate this job </a></p>
+
+			<p></p>
+			</li>
+			{{/jobs}}
+			{{/appointments}}
+		</script>
+		<script id="customer-statement-template" type="text/x-handlebars-template">
+			<ul data-role="listview" data-inset="true">
+			{{#expense}}
+			<li data-role="list-divider">
+			<h3>Start Balance:</h3>  <span class="ui-li-count">{{start_balance}}</span>
+			</li>
+			{{#jobs}}
+			<li>
+			<h2>{{vehicle}}</h2>
+			<p>
+			<strong>Location: {{location}}, {{service}}</strong>
+			</p>
+			<p>
+			{{date}}, {{timerange}}
+			</p>
+			<p class="ui-li-aside">
+			<strong> - {{expense}}</strong>
+			</p>
+			</li>
+			{{/jobs}}
+			<li data-role="list-divider">
+			<h3>Siteler Dollar:</h3>  <span class="ui-li-count">{{end_balance}}</span>
+			</li>
+			{{/expense}}
+			</ul>
+		</script>
+		<script id="checkin_job-detail-template" type="text/x-handlebars-template">
+			<div class='details'><h3>Owner: {{membername}}</h3>
+			<ul data-role="listview" data-inset="true">
+			<li><a href="tel:{{officePhone}}">Phone: {{memberphone}}</a></li>
+			<li><strong>Service Date:</strong> {{date}} {{time}}</li>
+			<li><strong>Location:</strong> {{location}}</li>
+
+			<li><strong>Vehicle:</strong> {{vehicle}}</li>
+			<li><strong>Service:</strong> {{servicetype}}</li>
+			<li><strong>Total: </strong>${{memberamount}}</li>
+			<li><strong>Assigned to Siteler:</strong> {{sitelername}}</li>
+
+			<li><strong>Projected Earning:</strong> ${{siteleramount}}</li>
+			<li><strong>slotid:</strong>{{slotid}}</li>
+
+			<li><a onclick="onsiteCheckIn({{slotid}})" data-rel='back' >check in</a></li>
+			</ul>
+			</div>
+		</script>
+
+
+		<script id="checkout_job-detail-template" type="text/x-handlebars-template">
+			<div class='details'><h3>Owner: {{membername}}</h3>
+			<ul data-role="listview" data-inset="true">
+			<li><a href="tel:{{officePhone}}">Phone: {{memberphone}}</a></li>
+			<li><strong>Service Date:</strong> {{date}} {{time}}</li>
+			<li><strong>Location:</strong> {{location}}</li>
+
+			<li><strong>Vehicle:</strong> {{vehicle}}</li>
+			<li><strong>Service:</strong> {{servicetype}}</li>
+			<li><strong>Total: </strong>${{memberamount}}</li>
+			<li><strong>Assigned to Siteler:</strong> {{sitelername}}</li>
+
+			<li><strong>Projected Earning:</strong> ${{siteleramount}}</li>
+			<li><strong>slotid:</strong>{{slotid}}</li>
+
+			<li><a onclick="onsiteCheckOut({{slotid}})" data-rel='back' >check out</a></li>
+			</ul>
+			</div>
+		</script>
+		
+		<script id="complete_job-detail-template" type="text/x-handlebars-template">
+			<div class='details'><h3>Owner: {{membername}}</h3>
+			<ul data-role="listview" data-inset="true">
+			<li><a href="tel:{{officePhone}}">Phone: {{memberphone}}</a></li>
+			<li><strong>Service Date:</strong> {{date}} {{time}}</li>
+			<li><strong>Location:</strong> {{location}}</li>
+
+			<li><strong>Vehicle:</strong> {{vehicle}}</li>
+			<li><strong>Service:</strong> {{servicetype}}</li>
+			<li><strong>Total: </strong>${{memberamount}}</li>
+			<li><strong>Assigned to Siteler:</strong> {{sitelername}}</li>
+
+			<li><strong>Earning:</strong> ${{siteleramount}}</li>
+			</ul>
+			</div>
+		</script>
+
+		<style>
 			/* IMPORTANT trying to solve a problem that it is not full screen on android */
 			#background {
 				position: fixed;
@@ -28,256 +236,2851 @@
 				z-index: 0
 			}
 			/*.ui-page {
-			background: url(images/screen-iphone-portrait.png) top center !important;
-			    background-attachment: fixed;
-			    background-size: auto 100% !important;
-			    overflow: hidden;
-			    text-shadow: none;
-			    padding: 0;
-			    width: 100%;
-			}*/
+			 background: url(images/screen-iphone-portrait.png) top center !important;
+			 background-attachment: fixed;
+			 background-size: auto 100% !important;
+			 overflow: hidden;
+			 text-shadow: none;
+			 padding: 0;
+			 width: 100%;
+			 }*/
 			.ui-page {
 				background: none;
-			    background-size: auto 100% !important;
+				background-size: auto 90% !important;
 			}
 			.ul .li {
 				opacity: 0.5;
 				background: transparent;
 			}
 		</style>
-    
-    
-    
-  </head>
-  <body>
-    <div data-role="page" class="jqm-demos" id="mapview_page" data-title="Map View">
-    
-      <header data-role="header" data-position="fixed"> 
-        <h2 class="ui-title" role="heading">Siteler Wash</h2>
-		        <div class="ui-btn-left" data-role="controlgroup" data-type="horizontal">
-       						  <a href="#menulist" data-role="button" data-icon="bullets">menu</a>
-        					</div>
-      </header><!-- /header -->
-    
-      <div role="main" class="ui-content jqm-content" >
-        <div id='container' ></div>
-      </div><!-- /content -->
-    
-     
 
-      <div data-role="panel" id="menulist" data-position="left" data-display="overlay">
-        <ul data-role="listview">
-          <li action="welcome">Welcome</li>
-          <li data-role="list-divider">Customer</li>
-          <li action="gotoGoogle">sign uo</li>
-          <li action="whereAreYou">Make an appointmnet</li>
-          <li action="mapOptions">check schedule</li>
-          <li action="panBy">check ballance()</li>
-          <li action="mapRemove">contact us</li>
-          <li data-role="list-divider">Waker</li>
-          <li action="marker1">Joint us</li>
-          <li action="marker2">Check Schedule</li>
-          <li action="marker3">Onsite Check in</li>
-          <li action="drawOverlays">Check Ballance</li>
-          <li action="direction">Direction</li>
-        </ul>
-       
-      </div><!-- /menu panel -->
-      <div data-role="footer" data-position="fixed" >
+	</head>
+	<body>
 
+		<div data-role="page" class="jqm-demos" id="welcome_page" data-title="Welcome">
+
+			<header data-role="header" data-position="fixed">
+				<h2 class="ui-title" role="heading">SITELER</h2>
+
+			</header><!-- /header -->
+
+			<div role="main" class="ui-content jqm-content" >
+				<div id='container1' >
+
+					<div id="canvas">
+
+						<img src="images/wash_1.png" style="width:100%; height: auto;" />
+					</div>
+
+					<table id="signin_check_bar" cellspacing="0" cellpadding="0" style="border:0">
+
+						<tr >
+							<td  style="width:70%;"><img  src="images/welcome_bar_left.png" style="width:100%; height: auto;" onclick="window.location = '#check_service_area_page';"/></td>
+							<td style="width:30%;"><img src="images/welcome_bar_right.png" style="width:100%; height: auto;"  onclick="enter_signin_page();" /></td>
+						</tr>
+					</table>
+
+					<!--		<img src="images/signin_bar.png" style="width:100%; height: auto;"  onclick="enter_signin_page();" /> -->
+
+					<div id="login_form" data-landmark-id="login_form" >
+
+						<form>
+
+							<table>
+								<tr>
+									<td><h3>Sign in</h3></td>
+									<td><a onclick="becomeMemberClick()" >Become a member</a></td>
+								</tr>
+								<tr>
+									<td><label for="name">Email:</label></td><td>
+									<input type="text" name="name" id="login_uname" placeholder="example@company.com" data-clear-btn="true" autocomplete="off" autocorrect="off" autocapitalize="off" data-mini="true"
+									onblur="autotab(this, become_worker_form.password,
+									/^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,4}$/,
+									'Please enter a valid email'); $('#xwm_email').val($('#xwm_uname').val());" maxlength = "50"/>
+									</td>
+								</tr>
+								<tr>
+									<td><label for="password">Password:</label></td>
+									<td>
+									<input type="password" name="password" id="login_upassword" value="" data-clear-btn="true" autocomplete="off" autocorrect="off" autocapitalize="off" data-mini="true">
+									</td>
+								</tr>
+								<tr>
+
+									<!--
+									<td><label for="remember_me_switch">Keep me in:</label></td>
+									<td>
+									<table>
+									<tr>
+									<td>
+									<select name="remember_me_switch" id="remember_me_switch" data-role="slider" data-mini="true" onchange="remember_me_switch_handler()">
+									<option value="0" >No</option>
+									<option value="1" >Yes</option>
+									</select></td>
+									<td><a onclick="resetPasswordClick()" >Reset Password</a></td>
+									</tr>
+									</table></td>
+									-->
+									<td><label for="reset_password">Forgot Password?:</label></td>
+
+									<td><a onclick="resetPasswordClick()" >Reset Password</a></td>
+
+								</tr>
+							</table>
+							<div class="ui-grid-a">
+								<div class="ui-block-a">
+									<input type="submit" value="Log In"  name="login_form_submit" />
+								</div>
+								<div class="ui-block-b">
+									<a onclick="signin_cancel();" class="ui-btn ui-shadow ui-corner-all ui-btn-a">Go Back</a>
+								</div>
+							</div>
+						</form>
+					</div>
+
+					<script>
+						//signin_remember = 1;
+						//get_signin_status();
+
+						//$('#remember_me_switch').val('1');
+
+						//		$("#remember_me_switch option[value='1']").attr("selected", "selected");
+/*
+						db.transaction(function(tx) {
+							var sql = "SELECT uName as uname, uPass as upass from users WHERE uType = '" + signin_utype + "'";
+							//	alert(sql);
+							tx.executeSql(sql, [], function(tx, res) {
+								signin_uname = res.rows.item(0).uname;
+								signin_upass = res.rows.item(0).upass;
+							}, function(e) {
+								console.log("ERROR: " + e.message);
+								app.showAlert(e.message, "ERROR");
+							});
+						});
+*/
+						if (signin_remember == '1') {
+							$('#login_uname').val(signin_uname);
+							$('#login_upassword').val(signin_upass);
+						}
+
+						function remember_me_switch_handler() {
+
+							signin_remember = $('#remember_me_switch').val();
+							//$('#remember_me_switch').val('1');
+							//alert(waker_remember);
+						/*	db.transaction(function(tx) {
+
+								tx.executeSql("UPDATE OR REPLACE login_status SET remember=? WHERE id=1", [signin_remember], function(tx, res) {
+									window.location = "#welcome_page";
+								}, function(e) {
+									console.log("ERROR: " + e.message);
+									app.showAlert("login_status update" + e.message, "DATABASE ERROR");
+								});
+
+							});*/
+						}
+
+					</script>
+					<div data-role="collapsible" data-collapsed="false" id="firstmenu">
+						<ul data-role="listview" data-shadow="false" data-inset="false" data-corners="false"
+						style="opacity: 0.85;background: transparent;">
+
+							<li>
+								<a data-transition="fade"  onclick = "enter_make_appointment_page();"><h3>Make an Appointment</h3>
+								<p style="font-size:14px;">
+									Let us fulfil your car-care needs with profession service
+								</p></a>
+							</li>
+
+							<li>
+								<a data-transition="fade"  onclick="enter_check_schedule();" ><h3>Check Status</h3>
+								<p style="font-size:14px;">
+									Check when the job is complete
+								</p></a>
+							</li>
+
+							<li>
+								<a  data-transition="fade" onclick="becomeWorkerClick(); return false;"><h3>Career Opportunity</h3>
+								<p style="font-size:14px;">
+									Joint Siteler to Earn up to $100/Hr
+								</p></a>
+							</li>
+
+						</ul>
+					</div>
+				</div>
+			</div><!-- /content -->
+
+			<!--	<div data-role="footer" data-position="fixed" >
+
+			<div class="ui-btn-left" data-role="controlgroup" data-type="horizontal">
+			<a href="#menulist" data-role="button" data-icon="bullets">menu</a>
+			</div>
+			<h2>Welcome to Siteler </h2>
+			</div>--><!-- /footer -->
+			<!-- /footer -->
+
+			<script>
+				$('#login_form').slideUp();
+
+				function sign_in() {
+					if (!check_signin_status())//not sign in yet
+					{
+						$('#login_form').slideDown();
+						$('#firstmenu').hide();
+						$('#signin_check_bar').hide();
+
+					} else {
+						window.location = "#customer_page";
+					}
+				}
+
+				function signin_cancel() {
+
+					$('#login_form').slideUp();
+					$('#firstmenu').show();
+					$('#signin_check_bar').show();
+				}
+
+			</script>
+		</div><!-- /page -->
+
+		<div data-role="page"  class="jqm-demos" id="check_service_area_page" data-title="Check Service Area">
+
+			<header data-role="header" data-position="fixed">
+				<h2 class="ui-title" role="heading">SITELER</h2>
+
+			</header><!-- /header -->
+
+			<div role="main" class="ui-content jqm-content" >
+
+				<p>
+					We provides professional on-site car wash & Detail Service. Please select your city to check the service availability.
+				</p>
+
+				<div id="check_service_area_form" data-landmark-id="check_service_area_form">
+
+					<form name="service_area_form">
+
+						<select name="service_city" id="service_city" >
+
+						</select>
+
+						<select name="service_state" id="service_state" onchange="updateCityList();" >
+
+						</select>
+
+						<input type="text" name="service_zip" id="service_zip" placeholder="your zip code"
+
+						onKeyup="autotab(this, service_area_form.check_service_area_form_submit,/^[0-9]+$/i,'Please enter 5-digit zip')" maxlength="5" />
+
+						<input type="submit" value="Submit" id="check_service_area_form_submit" name="Check Service Area" />
+					</form>
+				</div>
+			</div>
+
+			<div data-role="footer" data-position="fixed" data-tap-toggle="false">
+				<div data-demo-html="true">
+					<div data-role="navbar">
+						<div class="ui-grid-b center">
+							<div class="ui-block-a ">
+								<a data-rel="back" class="ui-btn ui-shadow ui-corner-all ui-btn-inline ui-icon-back ui-btn-icon-left">Back</a>
+
+							</div>
+							<div class="ui-block-b "></div>
+							<div class="ui-block-c "></div>
+						</div>
+					</div><!-- /navbar -->
+				</div><!--/demo-html -->
+			</div><!-- /footer -->
+
+			<script type="text/javascript">
+				$(document).ready(function() {
+					var url = "http://www.pineconetassel.com/sitelertest/test_zip.php";
+
+					$.ajax({
+						dataType : "json",
+						url : url,
+						type : 'POST',
+						data : {
+							mode : 'get',
+							lat : 37.363369,
+							lng : -121.890160
+						},
+						success : function(data) {
+
+							city_list = data;
+
+							updateStateList();
+							updateCityList();
+						},
+						error : function() {
+							//alert("error");
+							console.log("error");
+							//app.showAlert('There was an error in registration form', 'ERROR');
+						}
+					});
+
+				});
+
+				function updateCityList() {
+					var state_selected = $('#service_state').val();
+					//$('#service_city').empty();
+					$('#service_city option').remove();
+					$.each(city_list[state_selected], function(i, city) {
+						$('#service_city option').remove();
+						$.each(city_list[state_selected], function(i, city) {
+							if (city === "SAN FRANCISCO")
+								$('#service_city').append($("<option selected></option>").attr("value", city).text(city));
+							else
+								$('#service_city').append($("<option></option>").attr("value", city).text(city));
+
+						});
+
+					});
+
+				}
+
+				function updateStateList() {
+					//	var state_selected = $('#service_state').val();
+
+					$('#service_state option').remove();
+
+					$.each(city_list, function(state) {
+
+						$('#service_state').append($("<option></option>").attr("value", state).text(state));
+
+					});
+
+				}
+			</script>
+
+		</div>
+
+		<div data-role="page" id="become_worker_page">
+			<div role="main" class="ui-content jqm-content">
+				<div id="become_worker_form" data-landmark-id="become_worker_form">
+					<form name = "become_worker_form">
+						<!--perseonal info-->
+						<div class="ui-corner-all custom-corners">
+							<div class="ui-bar ui-bar-a">
+								<h2>Personal Info</h2>
+							</div>
+							<div class="ui-body ui-body-a">
+								<div class="single-row">
+									<div class="row-left">
+										Login Email *
+									</div>
+
+									<div class="row-right">
+										<input type="text" name="username" id="xwm_uname" placeholder="User Name" data-clear-btn="true" autocomplete="off" autocorrect="off" autocapitalize="off"
+										onblur="autotab(this, become_worker_form.password,
+										/^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,4}$/,
+										'Please enter a valid email'); $('#xwm_email').val($('#xwm_uname').val());" maxlength = "50"/>
+										<span id="usercheck1"></span>
+									</div>
+								</div>
+								<div class="single-row">
+									<div class="row-left">
+										Login Password *
+									</div>
+									<div class="row-right">
+										<input type="text" name="password" id="xwm_upass"  />
+									</div>
+								</div>
+
+								<div class="single-row">
+									<div class="row-left">
+										First Name *
+									</div>
+									<div class="row-right">
+										<input type="text" name="fname" id="xwm_fname"
+										onKeyup="autotab(this, become_worker_form.lname, /^[A-Za-z]+$/, 'Please enter a valid first name')"/>
+									</div>
+								</div>
+								<div class="single-row">
+									<div class="row-left">
+										Last Name *
+									</div>
+									<div class="row-right">
+										<input type="text" name="lname" id="xwm_lname"
+										onKeyup="autotab(this, become_worker_form.mobile1, /^[A-Za-z]+$/, 'Please enter a valid last name')"/>
+									</div>
+								</div>
+
+								<div class="single-row">
+									<div class="row-left">
+										Mobile *
+									</div>
+									<div class="rowright">
+										<div class="ui-grid-b">
+											<div class="ui-block-a ">
+												<input type="text" class="phone-input" name="mobile1"
+												onKeyup="autotab(this, become_worker_form.mobile2, /^[0-9]+$/, 'Please enter a valid phone number')"
+												id="xwm_mobile1" placeholder="###" maxlength="3"/>
+											</div>
+											<div class="ui-block-b ">
+												<input type="text" class="phone-input" name="mobile2"
+												onKeyup="autotab(this, become_worker_form.mobile3, /^[0-9]+$/, 'Please enter a valid phone number')"
+												id="xwm_mobile2" placeholder="###" maxlength="3"/>
+											</div>
+											<div class="ui-block-c ">
+												<input type="text" class="phone-input" name="mobile3"
+												onKeyup="autotab(this, become_worker_form.gender, /^[0-9]+$/, 'Please enter a valid phone number')"
+												id="xwm_mobile3" placeholder="####" maxlength="4"/>
+											</div>
+										</div>
+									</div>
+								</div>
+			
+								<div class="single-row">
+									<div class="row-left">
+										Gender *
+									</div>
+									<div class="row-right">
+										<select name="gender" id="xwm_gender">
+											<option value="male">Male</option>
+											<option value="female">Female</option>
+										</select>
+									</div>
+								</div>
+								<div class="single-row">
+									<div class="row-left">
+										Nationality *
+									</div>
+									<div class="row-right">
+										<input type="text" name="nationality" id="xwm_nationality"
+										onKeyup="autotab(this, become_worker_form.date, /^[A-Za-z]+$/, 'Please enter a valid nationality')"/>
+									</div>
+								</div>
+								<div class="single-row dob">
+									<div class="row-left">
+										Date of Birth *
+									</div>
+									<div class="ui-grid-b ">
+										<div class="ui-block-a ">
+											<input type="text" name="date" class="half-input" placeholder="DD" id="xwm_dobday"
+											onKeyup="autotab(this, become_worker_form.month, /^(0[1-9]|1[1-9]|2[1-9]|3[01])$/,
+											'Please enter a valid birth date')" maxlength = "2"/>
+										</div>
+										<div class="ui-block-b ">
+											<input type="text" name="month" class="half-input" placeholder="MM" id="xwm_dobmonth"
+											onblur="autotab(this, become_worker_form.year,/^(0[1-9]|1[012])$/,'Please enter a valid birth month')" maxlength="2"/>
+										</div>
+										<div class="ui-block-c ">
+											<input type="text" name="year" class="half-input" placeholder="YYYY" id="xwm_dobyear"
+											onblur="autotab(this, become_worker_form.ssn,/^(19[0-9][0-9]|20[0-1][0-9])$/,'Please enter 4-digit birth year')"
+											maxlength="4"/>
+										</div>
+									</div>
+								</div>
+								<div class="single-row">
+									<div class="row-left">
+										Social Security Number (SSN) *
+									</div>
+									<div class="row-right">
+										<input type="text" name="ssn" id="xwm_ssn"
+										onblur="autotab(this, become_worker_form.accountnumber,/^[0-9]{9}$/,'Please enter 9-digit SSN without space')"
+										maxlength="9"/>
+									</div>
+								</div>
+							</div>
+						</div><!--perseonal info-->
+					
+						<!--Paypal info-->
+						<div class="ui-corner-all custom-corners">
+							<div class="ui-bar ui-bar-a">
+								<h2>Paypal Account for Receiving Pay</h2>
+							</div>
+							<div class="ui-body ui-body-a">
+								<div class="single-row">
+									<div class="row-left">
+										Paypal Account Email *
+									</div>
+									<div class="row-right">
+										<input type="text" name="paypalaccount" id="xwm_paypalaccount" />
+									</div>
+								</div>
+							</div>
+						</div><!--Paypal info-->
+						<!--address info-->
+						<div class="ui-corner-all custom-corners">
+							<div class="ui-bar ui-bar-a">
+								<h2>Address Info</h2>
+							</div>
+							<div class="ui-body ui-body-a">
+								<!--<h5>Your Address</h5>-->
+								<div class="single-row">
+									<div class="row-left">
+										Street No. *
+									</div>
+									<div class="row-right">
+										<input type="text" name="address1" id="xwm_street"
+										onblur="autotab(this, become_worker_form.city,/^[a-z\s0-9]+$/i,,'Please enter a valid street address')" maxlength="64" />
+								
+									</div>
+								</div>
+					
+								<div class="single-row">
+									<div class="row-left">
+										City *
+									</div>
+									<div class="row-right">
+										<input type="text" name="city" id="xwm_city" />
+									</div>
+								</div>
+								<div class="single-row">
+									<div class="row-left">
+										State *
+									</div>
+									<div class="row-right">
+										<!--<input type="text" name="state" />-->
+										<select name="state" id="xwm_state">
+										
+											<option selected value="CA">California</option>
+											
+										</select>
+									</div>
+								</div>
+								<div class="single-row">
+									<div class="row-left">
+										5-digit Zip Code *
+									</div>
+									<div class="row-right">
+										<input type="text" name="zipcode" id="xwm_zipcode"
+										onKeyup="autotab(this, become_worker_form.english, /^[0-9]+$/, 'Please enter a 5-digit zipcode')" maxlength = "5"/>
+									</div>
+								</div>
+							</div>
+						</div><!--address info-->
+						<!--eligibility-->
+						<div class="ui-corner-all custom-corners">
+							<div class="ui-bar ui-bar-a">
+								<h2>Are you eligible?</h2>
+							</div>
+							<div class="ui-body ui-body-a">
+								<div class="eligibility">
+									<!--<h3> Are you eligible? </h3>-->
+									<div>
+										<input type="checkbox" name="english" id="xwm_english"  value="english">
+										<label for="xwm_english"> I can speak English to a good standard. If not, what primary language do you speak? </label>
+									</div>
+									<div>
+										<input type="checkbox" name="righttowork" id="xwm_righttowork" value="righttowork">
+										<label for="xwm_righttowork"> I have the right to work in the US. </label>
+									</div>
+									<div>
+										<input type="checkbox" name="passport" id="xwm_passport" value="passport">
+										<label for="xwm_passport"> I have a passport that I can bring to the interview. </label>
+									</div>
+									<div>
+										<input type="checkbox" name="selfemployed" id="xwm_selfemployed" value="selfemployed">
+										<label for="xwm_selfemployed"> I understand that Siteler is not an agency and does not employ car washer  detailers. I will be self-employed. </label>
+									</div>
+									<div>
+										<input type="checkbox" name="experience" id="xwm_experience" value="experience">
+										<label for="xwm_experience"> I have a minimum of 6 months car wash / detailing experience. </label>
+									</div>
+									<div>
+										<input type="checkbox" name="reference" id="xwm_reference" value="reference">
+										<label for="xwm_reference"> I have 2 car wash / detail references that Siteler can contact. </label>
+									</div>
+									<div>
+										<input type="checkbox" name="flexibility" id="xwm_flexibility" value="flexibility">
+										<label for="xwm_flexibility"> I can work very flexibly any time any days of the week. If not, when are you available to work? </label>
+									</div>
+									<div>
+										<input type="checkbox" name="bank" id="xwm_bank" value="bank">
+										<label for="xwm_bank"> I understand that I will be paid directly into my bank account. </label>
+									</div>
+									<div>
+										<input type="checkbox" name="havemobile" id="xwm_havemobile" value="havemobile">
+										<label for="xwm_havemobile"> I have a US mobile phone and am able to send and receive text messsages. </label>
+									</div>
+									<div>
+										<input type="checkbox" name="picture" id="xwm_picture" value="picture">
+										<label for="xwm_picture"> I allow Siteler to take my picture and display it on the Siteler website. </label>
+									</div>
+									<div>
+										<input type="checkbox" name="certified" id="xwm_certified" value="certified">
+										<label for="xwm_certified"> I need to be certified by Siteler to be able to provide more professional high-end car wash / detail services. </label>
+									</div>
+								</div>
+							</div>
+						</div><!--eligibility-->
+						<!--term and condicitons-->
+						<div class="ui-corner-all custom-corners">
+							<div class="ui-bar ui-bar-a">
+								<h2>Terms / Conditions</h2>
+								<!--<h3>Terms / Conditions</h3>-->
+							</div>
+							<div class="ui-body ui-body-a">
+								<div>
+									<input type="checkbox" name="terms" id="xwm_terms" value="terms">
+									<label for="xwm_terms"> I accept the terms and conditions.</label>
+									<a href="#">(view)</a>
+									<!--</label>IMPORTANT CHANGE-->
+								</div>
+							</div>
+						</div><!--term and condicitons-->
+						<input type="submit" value="Submit" data-rel="back" name="submit" />
+					</form>
+				</div>
+			</div><!-- /content -->
+			<div data-role="footer" data-position="fixed">
 				<div class="ui-grid-b center">
 					<div class="ui-block-a ">
-			
+						<a data-rel="back" class="ui-btn ui-shadow ui-corner-all ui-btn-inline ui-icon-back ui-btn-icon-left">Back</a>
+
+					</div>
+					<div class="ui-block-b "></div>
+					<div class="ui-block-c "></div>
+				</div>
+			</div><!-- /footer -->
+		</div><!-- /become_worker_page -->
+
+		<!-- /contact_us_page -->
+		<div data-role="page" id="contact_us_page">
+			<div data-role="header" data-position="fixed" style="margin-left: auto; margin-right: auto;width: 100%;">
+				<table>
+					<tr>
+						<td>
+						<div id="logo">
+							<img src="images/logo.png" >
+						</div></td><td style="font-size:12px;">
+						<p>
+							<br>
+							765 Mabury Rd
+							<br>
+							San Jose, CA 95133
+						</p> Tel: 888-748-3537
+						<br>
+						cs@sitelerwash.com</td>
+					</tr>
+				</table>
+			</div><!-- /header -->
+			<div role="main" class="ui-content jqm-content">
+				<h2>Contact Us</h2>
+				<p>
+					Your comments are important. Please email us your concern, thanks,.
+				</p>
+				<div id="contact_us_form" data-landmark-id="contact_us_form">
+					<form name="contactform">
+						<!--Your contact info-->
+						<div class="ui-corner-all custom-corners">
+							<div class="ui-bar ui-bar-a">
+								<h2>Your contact Info</h2>
+							</div>
+							<div class="ui-body ui-body-a">
+								<div class="singlerow">
+									<div class="rowleft">
+										First Name *
+									</div>
+									<div class="rowright">
+										<input type="text" id="cuf_fname" name="first_name" class="half-input" placeholder="First Name"
+										onkeyup="autotab(this, contactform.last_name, /^[A-Za-z]+$/, 'Please enter a valid first name')"
+										data-clear-btn="true" autocomplete="off" autocorrect="off" autocapitalize="off" />
+									</div>
+								</div>
+								<div class="singlerow">
+									<div class="rowleft">
+										Last Name *
+									</div>
+									<div class="rowright">
+										<input type="text" id="cuf_lname" name="last_name" class="half-input" placeholder="Last Name"
+										onkeyup="autotab(this, contactform.email, /^[A-Za-z]+$/, 'Please enter a valid last name')"
+										data-clear-btn="true" autocomplete="off" autocorrect="off" autocapitalize="off" />
+									</div>
+								</div>
+								<div class="singlerow">
+									<div class="rowleft">
+										Email Address *
+									</div>
+									<div class="rowright">
+										<input type="text" id="cuf_email" name="email" class="half-input" placeholder="Email"
+										onblur="autotab(this, contactform.telephone1,/^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,4}$/,'Please enter a valid email')"
+										data-clear-btn="true" autocomplete="off" autocorrect="off" autocapitalize="off" />
+									</div>
+								</div>
+								<div class="singlerow">
+									<div class="rowleft">
+										Telephone *
+									</div>
+									<div class="rowright">
+										<div class="ui-grid-b ">
+											<div class="ui-block-a ">
+												<input type="text" class="phone-input" name="contact_phone1" id="contactph1" placeholder="###"
+												onKeyup="autotab(this, contactform.contact_phone2,/^[0-9]+$/,'Please enter a valid phone number')" maxlength="3" />
+											</div>
+											<div class="ui-block-b ">
+												<input type="text" class="phone-input" name="contact_phone2" id="contactph2" placeholder="###"
+												onKeyup="autotab(this, contactform.contact_phone3,/^[0-9]+$/,'Please enter a valid phone number')" maxlength="3" />
+											</div>
+											<div class="ui-block-c ">
+												<input type="text" class="phone-input" name="contact_phone3" id="contactph3" placeholder="####"
+												onKeyup="autotab(this, contactform.comments,/^[0-9]+$/,'Please enter a valid phone number')" maxlength="4" />
+											</div>
+										</div>
+									</div>
+								</div>
+							</div>
+						</div><!--your info-->
+						<div class="ui-corner-all custom-corners">
+							<div class="ui-bar ui-bar-a">
+								<h2>Your comments</h2>
+							</div>
+							<div class="ui-body ui-body-a">
+								<div class="singlerow">
+									<div class="rowleft">
+										Comments *
+									</div>
+									<div class="rowright">
+										<textarea  name="comments" maxlength="1000" rows="6"></textarea>
+									</div>
+								</div>
+							</div>
+						</div>
+						<input type="submit" value="Submit" data-rel="back" name="submit" />
+					
+					</form>
+	
+				</div><!-- /content -->
+			</div><!-- /content -->
+			<div data-role="footer" data-position="fixed">
+				<div class="ui-grid-b center">
+					<div class="ui-block-a ">
+						<a data-rel="back" class="ui-btn ui-shadow ui-corner-all ui-btn-inline
+						ui-icon-back ui-btn-icon-left">Back</a>
+					</div>
+					<div class="ui-block-b "></div>
+					<div class="ui-block-c "></div>
+				</div>
+			</div><!-- /footer -->
+		</div><!-- /contact_us_page -->
+
+		<div data-role="page" id="member_contact_us_page">
+			<div data-role="header" data-position="fixed" style="margin-left: auto; margin-right: auto;width: 100%;">
+				<table>
+					<tr>
+						<td>
+						<div id="logo">
+							<img src="images/logo.png" >
+						</div></td><td style="font-size:12px;">
+						<p>
+							<br>
+							765 Mabury Rd
+							<br>
+							San Jose, CA 95133
+						</p> Tel: 888-748-3537
+						<br>
+						cs@sitelerwash.com</td>
+					</tr>
+				</table>
+			</div><!-- /header -->
+			<div role="main" class="ui-content jqm-content">
+				<h2>Contact Us</h2>
+				<p>
+					Your comments are important. Please email us your concern, thanks,
+				</p>
+				<div id="member_contact_us_form" data-landmark-id="member_contact_us_form">
+					<form name="contactform" >
+						<!--Your contact info-->
+
+						<div class="ui-corner-all custom-corners">
+
+							<div class="ui-body ui-body-a">
+								<div class="singlerow">
+									<div class="rowleft">
+										Comments *
+									</div>
+									<div class="rowright">
+										<textarea  name="comments" maxlength="1000" rows="6" id="member_commments" ></textarea>
+									</div>
+								</div>
+							</div>
+						</div>
+						<input type="submit" value="Submit" data-rel="back" name="submit" />
+						<!--
+						<button onclick = "contactFormSubmit()" value="Submit" data-rel="back" name="submit">Submit</button>
+						-->
+					</form>
+				</div><!-- /content -->
+			</div><!-- /content -->
+			<div data-role="footer" data-position="fixed">
+				<div class="ui-grid-b center">
+					<div class="ui-block-a ">
+						<a data-rel="back" class="ui-btn ui-shadow ui-corner-all ui-btn-inline
+						ui-icon-back ui-btn-icon-left">Back</a>
+					</div>
+					<div class="ui-block-b "></div>
+					<div class="ui-block-c "></div>
+				</div>
+			</div><!-- /footer -->
+		</div><!-- /member_contact_us_page -->
+
+
+
+
+
+		<div data-role="page" id="customer_appointment_page">
+			<div data-role="header" data-position="fixed" style="background-color:green">
+				<h1 style="color: white">Make an appointment</h1>
+			</div><!-- /header -->
+			<div role="main" class="ui-content jqm-content">
+				<div class="vehicle-container">
+					<div id="make_appoinmtment_form" data-landmark-id="make_appoinmtment_form">
+						<form >
+							<input type="hidden" id="appointment_siteler_id" name="siteler_id"/>
+							<input type="hidden" id="appointment_username" name="username"/>
+							<input type="hidden" id="appointment_password" name="password"/>
+							<div class="singlerow">
+								<div class="rowright">
+									<select name="appointment_location_switch" id="appointment_location_switch" data-role="slider" data-mini="false" onchange="appointment_location_switch_handler()">
+										<option value="home" >Home</option>
+										<option value="work" selected>Work</option>
+									</select>
+								</div>
+							</div>
+							
+							<div data-demo-html="true">
+								<input type="hidden" id="appointment_company" name="company"/>
+								<textarea  rows="3" id="appointment_address" name="address" style="font-size:12px;color:green" readonly="true"></textarea>
+							</div>
+							<div data-demo-html="true">
+								<label for="select-choice-1" class="select">Vehicle</label>
+								<select name="vehicle_select" id="vehicle_select" onchange="appointment_vehicle_change()">
+									<option value="1" id="appointment_vehicle_select1" selected>Setelct a Vehicle</option>
+									<option value="2" id="appointment_vehicle_select2">Setelct a Vehicle</option>
+								</select>
+								<input type="hidden" id="appointment_make" name="make"/>
+								<input type="hidden" id="appointment_model" name="model"/>
+								<input type="hidden" id="appointment_color" name="color"/>
+								<input type="hidden" id="appointment_plate" name="plate"/>
+							</div><!-- /demo-html -->
+							<div data-demo-html="true">
+								<label for="service_select" class="select">Setelct a service</label>
+								<select name="service_select" id="service_select" onchange="appointment_service_change()">
+
+								</select>
+								<input type="hidden" id="appointment_service_type" name="service_type"/>
+							</div><!-- /demo-html -->
+
+							<div data-demo-html="true">
+								<label for="service_select" class="select">Service Description:</label>
+								<textarea  rows="3" id="appointment_service_fullname" name="service_fullname" style="font-size:12px;" readonly="true"></textarea>																
+
+
+							</div><!-- /demo-html -->
+							<div data-demo-html="true">
+								<input type="button" value="Check Promotion" onclick="checkCustomerPromotion();" id = "xcm_check_promotion" />
+								<input type="hidden" id="promotion_amount" name="discount_amount"/>
+							</div><!-- /demo-html -->
+
+							<div class="singlerow">
+								<div class="rowleft">
+									<label for="appointment_total_price"> Total Charge</label>
+									<input type="text" id="appointment_total_price" name="price" readonly="true"/>
+
+								</div>
+							</div>
+
+							<div class="singlerow">
+								<div class="rowleft">
+									<label for="appointment_date"> Date</label>
+									<input class="js__datepicker" type="text" placeholder="Pick a Date" id = "appointment_date"
+									name="date" readonly="true"/>
+								</div>
+							</div>
+							<div class="singlerow">
+								<div class="rowleft">
+									<label for="appointment_dropoff_time"> Drop Off Time</label>
+									<input class="js__timepicker" type="text" placeholder="Select a drop-off time;"
+									id = "appointment_dropofftime" name="dropoff_time" readonly="true"/>
+								</div>
+							</div>
+							<div class="singlerow">
+								<div class="rowleft">
+									<label for="appointment_pickup_time"> Pickup Time</label>
+									<input class="js__timepicker" type="text" placeholder="Select a pickup time;"
+									id = "appointment_pickuptime" name="pickup_time" readonly="true"/>
+								</div>
+							</div>
+							<input type="submit" value="Submit" data-rel="back" name="submit" />
+						</form>
+					</div>
+				</div>
+			</div><!-- /content -->
+			<div data-role="footer" data-position="fixed">
+				<div class="ui-grid-b center">
+					<div class="ui-block-a ">
+						<a data-rel="back" class="ui-btn ui-shadow ui-corner-all ui-btn-inline ui-icon-back ui-btn-icon-left">Back</a>
+
 					</div>
 					<div class="ui-block-b ">
-						<a href="#customer_page" onclick="enter_site()"  class="ui-btn ui-shadow ui-corner-all ui-btn-inline
-						ui-icon-back ui-btn-icon-left">Sign Up</a>
+						<a onclick="load_customer_schedule();" class="ui-btn ui-shadow ui-corner-all ui-btn-inline
+						ui-icon-back ui-btn-icon-left">Check Status</a>
+					</div>
+					<div class="ui-block-c "></div>
+				</div>
+			</div><!-- /footer -->
+		</div><!-- /customer_appointment_page -->
+
+		<div data-role="page" id="reschedule_appointment_page">  
+			<div data-role="header" data-position="fixed" style="background-color:green">
+				<h1 style="color: white">Reschedule an appointment</h1>
+			</div><!-- /header -->
+			<div role="main" class="ui-content jqm-content">
+				<div class="vehicle-container">
+					<div id="make_appoinmtment_form" data-landmark-id="make_appoinmtment_form">
+						<form >
+							<input type="hidden" id="appointment_id" name="appid"/>
+							<input type="hidden" id="appointment_username" name="username"/>
+							<input type="hidden" id="appointment_password" name="password"/>
+							<div class="singlerow">
+								<div class="rowright">
+									<select name="re_appointment_location_switch" id="re_appointment_location_switch" data-role="slider" data-mini="false" onchange="appointment_location_switch_handler()">
+										<option value="home" >Home</option>
+										<option value="work" selected>Work</option>
+									</select>
+								</div>
+							</div>
+							
+							<div data-demo-html="true">
+								<input type="hidden" id="re_appointment_company" name="company"/>
+								<textarea  rows="3" id="re_appointment_address" name="address" style="font-size:12px;color:green" readonly="true"></textarea>
+							</div>
+							<div data-demo-html="true">
+								<label for="select-choice-1" class="select">Vehicle</label>
+								<select name="vehicle_select" id="vehicle_select" onchange="appointment_vehicle_change()">
+									<option value="1" id="re_appointment_vehicle_select1" selected>Setelct a Vehicle</option>
+									<option value="2" id="re_appointment_vehicle_select2">Setelct a Vehicle</option>
+								</select>
+								<input type="hidden" id="re_appointment_make" name="make"/>
+								<input type="hidden" id="re_appointment_model" name="model"/>
+								<input type="hidden" id="re_appointment_color" name="color"/>
+								<input type="hidden" id="re_appointment_plate" name="plate"/>
+							</div><!-- /demo-html -->
+							<div data-demo-html="true">
+								<label for="reapp_service_select" class="select">Setelct a service</label>
+								<select name="service_select" id="reapp_service_select" onchange="appointment_service_change()">
+
+								</select>
+								<input type="hidden" id="re_appointment_service_type" name="service_type"/>
+							</div><!-- /demo-html -->
+
+							<div data-demo-html="true">
+								<label for="service_select" class="select">Service Description:</label>
+								<textarea  rows="3" id="re_appointment_service_fullname" name="service_fullname" style="font-size:12px;" readonly="true"></textarea>																
+
+
+							</div><!-- /demo-html -->
+							<div data-demo-html="true">
+								<input type="button" value="Check Promotion" onclick="checkCustomerPromotion();" id = "xcm_re_check_promotion" />
+								<input type="hidden" id="re_promotion_amount" name="discount_amount"/>
+							</div><!-- /demo-html -->
+
+							<div class="singlerow">
+								<div class="rowleft">
+									<label for="re_appointment_total_price"> Total Charge</label>
+									<input type="text" id="re_appointment_total_price" name="price" readonly="true"/>
+
+								</div>
+							</div>
+
+							<div class="singlerow">
+								<div class="rowleft">
+									<label for="re_appointment_date"> Date</label>
+									<input class="js__datepicker" type="text" placeholder="Pick a Date" id = "re_appointment_date"
+									name="date" readonly="true"/>
+								</div>
+							</div>
+							<div class="singlerow">
+								<div class="rowleft">
+									<label for="re_appointment_dropoff_time"> Drop Off Time</label>
+									<input class="js__timepicker" type="text" placeholder="Select a drop-off time;"
+									id = "re_appointment_dropofftime" name="dropoff_time" readonly="true"/>
+								</div>
+							</div>
+							<div class="singlerow">
+								<div class="rowleft">
+									<label for="re_appointment_pickup_time"> Pickup Time</label>
+									<input class="js__timepicker" type="text" placeholder="Select a pickup time;"
+									id = "re_appointment_pickuptime" name="pickup_time" readonly="true"/>
+								</div>
+							</div>
+							<input type="submit" value="Submit" data-rel="back" name="submit" />
+						</form>
+					</div>
+				</div>
+			</div><!-- /content -->
+			<div data-role="footer" data-position="fixed">
+				<div class="ui-grid-b center">
+					<div class="ui-block-a ">
+						<a data-rel="back" class="ui-btn ui-shadow ui-corner-all ui-btn-inline ui-icon-back ui-btn-icon-left">Back</a>
+
+					</div>
+					<div class="ui-block-b ">
+						<a onclick="load_customer_schedule();" class="ui-btn ui-shadow ui-corner-all ui-btn-inline
+						ui-icon-back ui-btn-icon-left">Check Status</a>
+					</div>
+					<div class="ui-block-c "></div>
+				</div>
+			</div><!-- /footer -->
+		</div><!-- /reschedule_appointment_page -->
+
+
+
+
+		<div data-role="page" id="customer_member_page">
+			<div data-role="header" data-position="fixed" style="background-color:green">
+				<h1 style="color: white">Become a Member</h1>
+			</div><!-- /header -->
+			<div role="main" class="ui-content jqm-content jqm-fullwidth">
+				<div id="become_customer_member_form" data-landmark-id="become_customer_member_form">
+					<form name="become_customer_member_form">
+						<div data-demo-html="true" data-demo-css="#combined-heading-and-section">
+							<div class="ui-corner-all custom-corners">
+								<div class="ui-bar ui-bar-a">
+									<h2>Login Info</h2>
+								</div>
+								<div class="ui-body ui-body-a">
+									<div class="singlerow">
+										<div class="rowleft">
+											Login E-mail *
+										</div>
+										<div class="rowright">
+
+											<div class="row-right">
+												<input type="text" name="username" id="xcm_uname" placeholder="Login Email" data-clear-btn="true" autocomplete="off" autocorrect="off" autocapitalize="off"
+												onblur="autotab(this, become_customer_member_form.password,
+												/^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,4}$/,
+												'Please enter a valid email'); $('#xcm_email').val($('#xcm_uname').val());" maxlength = "50"/>
+												<span id="usercheck1"></span>
+											</div>
+
+											<span id="usercheck"></span>
+										</div>
+									</div>
+									<div class="singlerow">
+										<div class="rowleft">
+											Login Password *
+										</div>
+										<div class="rowright">
+											<input type="password" name="password" id="xcm_upass"  class="half-input"  placeholder="User Password" data-clear-btn="true" autocomplete="off" autocorrect="off" autocapitalize="off"
+											onKeyup="autotab(this, become_customer_member_form.fname,/^.+$/,'Please enter a valid password')" maxlength="64" />
+										</div>
+									</div>
+
+									<div class="singlerow">
+										<div class="rowleft">
+											First Name *
+										</div>
+										<div class="rowright">
+											<input type="text" id="xcm_fname" name="fname" class="half-input" placeholder="First Name" data-clear-btn="true" autocomplete="off" autocorrect="off" autocapitalize="off"
+											onKeyup="autotab(this, become_customer_member_form.lname,/^[A-Za-z]+$/,'Please enter a valid first name')" maxlength="64" />
+										</div>
+									</div>
+									<div class="singlerow">
+										<div class="rowleft">
+											Last Name *
+										</div>
+										<div class="rowright">
+											<input type="text" id="xcm_lname" name="lname" class="half-input" placeholder="Last Name" data-clear-btn="true" autocomplete="off" autocorrect="off" autocapitalize="off"
+											onKeyup="autotab(this, become_customer_member_form.company,/^[A-Za-z]+$/,'Please enter a valid last name')" maxlength="64" />
+										</div>
+									</div>
+
+								</div>
+							</div>
+							<div class="ui-corner-all custom-corners">
+								<div class="ui-bar ui-bar-a">
+									<h3>Work Info</h3>
+								</div>
+								<div class="ui-body ui-body-a">
+									<div class="singlerow">
+										<div class="rowleft">
+											Company Name 
+										</div>
+										<div class="rowright">
+											<input type="text" name="company" id="xcm_company" class="half-input"  placeholder="Company Name" data-clear-btn="true" autocapitalize="off"
+											onKeyup="autotab(this, become_customer_member_form.company_street,/^.+$/,'Please enter a valid company Name')" maxlength="64" />
+										</div>
+										<div class="singlerow">
+											<div class="rowleft">
+												Address 
+											</div>
+											<div class="rowright">
+												<input type="text" name="company_street" id="xcm_company_street" placeholder="101 W Main St " class="Strees" data-clear-btn="true" autocomplete="off" autocorrect="off" autocapitalize="off"
+												onblur="autotab(this, become_customer_member_form.company_city,/^.+$/,'Please enter a valid street Address')" maxlength="64" />
+											</div>
+										</div>
+										<div class="singlerow">
+											<div class="rowleft">
+												City 
+											</div>
+											<div class="rowright">
+												<input type="text" name="company_city" id="xcm_company_city" placeholder="City" class="home-address"  autocomplete="off" autocorrect="off" autocapitalize="off"
+												onKeyup="autotab(this, become_customer_member_form.company_street,/^[a-z\s]+$/i,'Please enter a valid city Name')" maxlength="64" />
+											</div>
+										</div>
+										<div class="singlerow">
+											<div class="rowleft">
+												State 
+											</div>
+											<div class="rowright">
+												<select name="company_state">
+														<option selected value="CA">California</option>
+
+												</select>
+
+											</div>
+										</div>
+										<div class="singlerow">
+											<div class="rowleft">
+												5-digit Zip Code 
+											</div>
+											<div class="rowright">
+												<input type="text" name="company_zip" id = "xcm_company_zip"  placeholder="Zip" class="home-address"  autocomplete="off" autocorrect="off" autocapitalize="off"
+												onKeyup="autotab(this, become_customer_member_form.workph1,/^[0-9]+$/i,'Please enter 5-digit zip')" maxlength="5" />
+											</div>
+										</div>
+									</div>
+									<div class="singlerow">
+										<div class="rowleft">
+											Work Phone
+										</div>
+										<div class="rowright">
+											<div class="ui-grid-b ">
+												<div class="ui-block-a ">
+													<input type="text" class="phone-input" name="workph1" id="xcm_workph1" placeholder="###"
+													onKeyup="autotab(this, become_customer_member_form.workph2,/^[0-9]+$/,'Please enter a valid phone number')" maxlength="3" />
+												</div>
+												<div class="ui-block-b ">
+													<input type="text" class="phone-input" name="workph2" id="xcm_workph2" placeholder="###"
+													onKeyup="autotab(this, become_customer_member_form.workph3,/^[0-9]+$/,'Please enter a valid phone number')" maxlength="3" />
+												</div>
+												<div class="ui-block-c ">
+													<input type="text" class="phone-input" name="workph3" id="xcm_workph3" placeholder="####"
+													onKeyup="autotab(this, become_customer_member_form.street,/^[0-9]+$/,'Please enter a valid phone number')" maxlength="4" />
+												</div>
+											</div>
+										</div>
+									</div>
+								</div>
+							</div>
+							<div class="ui-corner-all custom-corners">
+								<div class="ui-bar ui-bar-a">
+									<h3>Home Info</h3>
+								</div>
+								<div class="ui-body ui-body-a">
+									<div class="singlerow">
+										<div class="rowleft">
+											Home Address *
+										</div>
+										<div class="rowright">
+											<input type="text" name="street" id="xcm_street" placeholder="101 W Main St" class="Strees" data-clear-btn="true" autocomplete="off" autocorrect="off" autocapitalize="off"
+											onblur="autotab(this, become_customer_member_form.city,/^.+$/,'Please enter a valid street address')" maxlength="64" />
+										</div>
+									</div>
+
+									<div class="singlerow">
+										<div class="rowleft">
+											City *
+										</div>
+										<div class="rowright">
+											<input type="text" name="city" id="xcm_city" placeholder="City" class="home-address"  autocomplete="off" autocorrect="off" autocapitalize="off"
+											onKeyup="autotab(this, become_customer_member_form.state,/^.+$/,'Please enter a valid city Name')" maxlength="64" />
+
+											<!--<input type="text" name="state" id="xcm_state"/>-->
+										</div>
+									</div>
+
+									<div class="singlerow">
+										<div class="rowleft">
+											State *
+										</div>
+										<div class="rowright">
+											<select name="state">
+												
+												<option selected value="CA">California</option>
+												
+											</select>
+										</div>
+									</div>
+									<div class="singlerow">
+										<div class="rowleft">
+											5-digit Zip Code *
+										</div>
+										<div class="rowright">
+											<input type="text" name="zip" id = "xcm_zip"  placeholder="Zip" class="home-address" autocomplete="off" autocorrect="off" autocapitalize="off"
+											size="5" onKeyup="autotab(this, become_customer_member_form.email,/^[0-9]+$/i,'Please enter 5-digit zip')" maxlength="5" />
+										</div>
+									</div>
+							
+							<div class="singlerow">
+								<div class="rowleft">
+									Personal Email
+								</div>
+								<div class="rowright">
+									<input type="email" name="email" id="xcm_registeremail" class="half-input"  placeholder="Personal Email" data-clear-btn="true" autocomplete="off" autocorrect="off" autocapitalize="off"
+									onblur="autotab(this, become_customer_member_form.cellph1,/^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,4}$/,'Please enter a valid email')" maxlength="50" />
+								</div>
+							</div>
+							<div class="singlerow">
+								<div class="rowleft">
+									Cell Phone *
+								</div>
+								<div class="rowright">
+									<div class="ui-grid-b ">
+										<div class="ui-block-a ">
+											<input type="text" class="phone-input" name="cellph1" id="xcm_cellph1" placeholder="###"
+											onKeyup="autotab(this, become_customer_member_form.cellph2,/^[0-9]+$/,'Please enter a valid phone number')" maxlength="3" />
+										</div>
+										<div class="ui-block-b ">
+											<input type="text" class="phone-input" name="cellph2" id="xcm_cellph2" placeholder="###"
+											onKeyup="autotab(this, become_customer_member_form.cellph3,/^[0-9]+$/,'Please enter a valid phone number')" maxlength="3" />
+										</div>
+										<div class="ui-block-c ">
+											<input type="text" class="phone-input" name="cellph3" id="xcm_cellph3" placeholder="####"
+											onKeyup="autotab(this, become_customer_member_form.v1make,/^[0-9]+$/,'Please enter a valid phone number')" maxlength="4" />
+										</div>
+									</div>
+								</div>
+							</div>
+
+						</div>
+				</div>
+
+				<div class="ui-corner-all custom-corners">
+					<div class="ui-bar ui-bar-a">
+						<h3>Vehicle </h3>
+					</div>
+					<div class="ui-body ui-body-a">
+						<div class="vehicle-container">
+							<div class="vehicle-1" id="customer_vehicle_1">
+								<div class="vehicle-row">
+									<div class="vehicle-left">
+										Make *
+									</div>
+									<div class="vehicle-right">
+
+										<select name="v1make" id = "xcm_v1make" onchage="updateXcm_v1make();" ></select>
+
+									</div>
+								</div>
+								<div class="vehicle-row">
+									<div class="vehicle-left">
+										Model *
+									</div>
+									<div class="vehicle-right">
+
+										<select name="v1model" id = "xcm_v1model" ></select>
+
+									</div>
+								</div>
+								<div class="vehicle-row">
+									<div class="vehicle-left">
+										Color *
+									</div>
+									<div class="vehicle-right">
+
+										<!--
+										<input type="text" name="v1color" id = "xcm_v1color" placeholder="Color" data-clear-btn="true" autocomplete="off" autocorrect="off" autocapitalize="off"
+										onKeyup="autotab(this, become_customer_member_form.exp_year,/^[a-z\s]+$/i,'Please enter valid color')" maxlength="50" />
+										-->
+										<select name="v1color" id = "xcm_v1color" ></select>
+
+									</div>
+								</div>
+								<div class="vehicle-row">
+									<div class="vehicle-left">
+										License plate *
+									</div>
+									<div class="vehicle-right">
+										<input type="text" name="v1license" id = "xcm_v1license" placeholder="License Plate #" data-clear-btn="true" autocomplete="off" autocorrect="off" autocapitalize="off"/>
+									</div>
+								</div>
+							</div>
+
+						</div>
+					</div>
+				</div>
+			</div>
+			<input type="submit" value="Submit" data-rel="back" name="submit" />
+			</form>
+		</div>
+		</div><!-- /content -->
+		<div data-role="footer" data-position="fixed">
+			<div class="ui-grid-b center">
+				<div class="ui-block-a ">
+					<a data-rel="back" class="ui-btn ui-shadow ui-corner-all ui-btn-inline ui-icon-back ui-btn-icon-left">Back</a>
+
+				</div>
+				<div class="ui-block-b "></div>
+				<div class="ui-block-c "></div>
+			</div>
+		</div><!-- /footer -->
+		<script>
+			function customer_add_vehicle() {
+				$('#xcm_add2ndvehicle').slideUp();
+				$('#customer_vehicle_2').show();
+			}
+		</script>
+		</div><!-- /customer_member_page -->
+
+		<div data-role="page" id="siteler_onetime_appointment_page">
+			<div data-role="header" data-position="fixed" style="background-color:green">
+				<h1 style="color: white">One-time Appointment</h1>
+			</div><!-- /header -->
+			<div role="main" class="ui-content jqm-content">
+				<div id="one-time_appointment_form" data-landmark-id="one-time_appointment_form">
+					<form name = "one_time_appointment_form">
+						<!-- /personal info -->
+						<div class="ui-corner-all custom-corners">
+							<div class="ui-bar ui-bar-a">
+								<h2>Personal Info</h2>
+							</div>
+							<div class="ui-body ui-body-a">
+								<div class="singlerow">
+									<div class="rowleft">
+										First Name *
+									</div>
+									<div class="rowright">
+										<input type="text" id="xcm_fname" name="fname" class="half-input" placeholder="First Name"
+										onKeyup="autotab(this, one_time_appointment_form.lname, /^[A-Za-z]+$/, 'Please enter a valid first name')"
+										data-clear-btn="true" autocomplete="off" autocorrect="off" autocapitalize="off" />
+									</div>
+								</div>
+								<div class="singlerow">
+									<div class="rowleft">
+										Last Name *
+									</div>
+									<div class="rowright">
+										<input type="text" id="otc_lname" name="lname" class="half-input" placeholder="Last Name"
+										onKeyup="autotab(this, one_time_appointment_form.email,/^[A-Za-z]+$/,'Please enter a valid last name')"
+										data-clear-btn="true" autocomplete="off" autocorrect="off" autocapitalize="off" />
+									</div>
+								</div>
+								<div class="singlerow">
+									<div class="rowleft">
+										Email *
+									</div>
+									<div class="rowright">
+										<input type="email" name="email" id="otc_registeremail" class="half-input"  placeholder="Personal Email"
+										onblur="autotab(this, one_time_appointment_form.cellph1,/^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,4}$/,'Please enter a valid email')"
+										data-clear-btn="true" autocomplete="off" autocorrect="off" autocapitalize="off"  />
+										<span id="usercheck1"></span>
+									</div>
+								</div>
+								<div class="singlerow">
+									<div class="rowleft">
+										Cell Phone *
+									</div>
+									<div class="rowright">
+										<div class="ui-grid-b ">
+											<div class="ui-block-a ">
+												<input type="text" class="phone-input" name="cellph1" id="otc_cellph1"
+												onKeyup="autotab(this, one_time_appointment_form.cellph2,/^[0-9]+$/, 'Please enter a valid phone number')"
+												placeholder="###" maxlength="3" />
+											</div>
+											<div class="ui-block-b ">
+												<input type="text" class="phone-input" name="cellph2" id="otc_cellph2"
+												onKeyup="autotab(this, one_time_appointment_form.cellph3, /^[0-9]+$/, 'Please enter a valid phone number')"
+												placeholder="###" maxlength="3" />
+											</div>
+											<div class="ui-block-c ">
+												<input type="text" class="phone-input" name="cellph3" id="otc_cellph3"
+												onKeyup="autotab(this, one_time_appointment_form.appointment_location_switch, /^[0-9]+$/,'Please enter a valid phone number')"
+												placeholder="####" maxlength="4" />
+											</div>
+										</div>
+									</div>
+								</div>
+							</div>
+						</div><!--Personal Info-->
+						<!--Address info-->
+						<div class="singlerow">
+							<div class="singlerow">
+
+								<div class="ui-corner-all custom-corners">
+									<div class="ui-bar ui-bar-a">
+										<h2>Address Info</h2>
+									</div>
+									<div class="ui-body ui-body-a">
+										<div class="rowleft">
+											Car Wash Address
+										</div>
+										<div class="rowright">
+											<select name="appointment_location_switch" id="onetime_appointment_location_switch" data-role="slider" data-mini="false" onchange="appointment_location_switch_handler()">
+												<option value="home" >Home</option>
+												<option value="work" selected>Work</option>
+											</select>
+										</div>
+										<!--<h5>Your Address</h5>-->
+										<div class="single-row">
+											<div class="row-left">
+												Street
+											</div>
+											<div class="row-right">
+												<input type="text" name="address1"  maxlength="64" />
+											</div>
+										</div>
+
+										<div class="single-row">
+											<div class="row-left">
+												City
+											</div>
+											<div class="row-right">
+												<input type="text" name="city" id="otc_city" />
+											</div>
+										</div>
+										<div class="single-row">
+											<div class="row-left">
+												State
+											</div>
+											<div class="row-right">
+												<input type="text" name="state" id="otc_state"/>
+
+											</div>
+										</div>
+										<div class="single-row">
+											<div class="row-left">
+												Zipcode
+											</div>
+											<div class="row-right">
+												<input type="text" name="zipcode" id="otc_zip"
+												onKeyup="autotab(this, one_time_appointment_form.v1make, /^[0-9]+$/, 'Please enter a valid zipcode')" maxlength = "5"/>
+											</div>
+										</div>
+									</div>
+								</div><!--address info-->
+							</div>
+						</div><!--Address info-->
+						<!-- /vehicle info -->
+						<div data-demo-html="true" data-demo-css="#combined-heading-and-section">
+							<div class="ui-corner-all custom-corners">
+								<div class="ui-bar ui-bar-a">
+									<h2>Vehicle Info</h2>
+								</div>
+								<div class="ui-body ui-body-a">
+									<div class="vehicle-container">
+										<div class="vehicle-1">
+											<!--<h3>Vehicle</h3>-->
+											<div class="vehicle-row">
+												<div class="vehicle-left">
+													Make *
+												</div>
+
+												<select name="v1make" id="otc_v1make" onchage="updateOtc_v1make();return false;" ></select>
+
+											</div>
+											<div class="vehicle-row">
+												<div class="vehicle-left">
+													Model *
+												</div>
+												<div class="vehicle-right">
+
+													<select name="v1model" id="otc_v1model"  ></select>
+
+												</div>
+											</div>
+											<div class="vehicle-row">
+												<div class="vehicle-left">
+													Color *
+												</div>
+												<div class="vehicle-right">
+
+													<select name="v1color" id="otc_v1color"  ></select>
+
+												</div>
+											</div>
+											<div class="vehicle-row">
+												<div class="vehicle-left">
+													License plate *
+												</div>
+												<div class="vehicle-right">
+													<input type="text" name="v1license" id = "otc_v1license" placeholder="License Plate #"
+													onKeyup="autotab(this, one_time_appointment_form.service_select,/^[A-Za-z0-9]+$/,'Please enter a valid license plate')"
+													data-clear-btn="true" autocomplete="off" autocorrect="off" autocapitalize="off"/>
+												</div>
+											</div>
+										</div>
+									</div>
+								</div>
+								<!--NEW CHANGE!! IMPORTANT-->
+							</div><!--NEW CHANGE!! IMPORTANT-->
+							<div data-demo-html="true">
+								<label for="otc_service_select" class="select">Select a service</label>
+								<select name="service_select" id="otc_service_select" onchange="onetime_appointment_service_change()">
+
+								</select>
+								<input type="hidden" id="otc_appointment_service_type" name="service_type"/>
+								<input type="hidden" id="otc_appointment_price" name="price"/>
+							</div><!-- /demo-html -->
+							<div data-demo-html="true" style="display:none;">
+								<input type="button" value="Check Promotion" onclick="checkCustomerPromotion();"
+								id = "xcm_check_promotion" />
+								<input type="hidden" id="otc_promotion_rate" name="discount_rate"/>
+							</div><!-- /demo-html -->
+						</div>
+						<!-- /Schedule info -->
+						<div data-demo-html="true" data-demo-css="#combined-heading-and-section">
+							<div class="ui-corner-all custom-corners">
+								<div class="ui-bar ui-bar-a">
+									<h2>Service Date</h2>
+								</div>
+								<div class="ui-body ui-body-a">
+									<div class="singlerow">
+										<div class="rowleft">
+											<label for="appointment_date"> Date</label>
+											<input class="js__datepicker" type="text" placeholder="Pick a Date" id = "otc_appointment_date" name="date" readonly="true"/>
+										</div>
+									</div>
+									<div class="singlerow">
+										<div class="rowleft">
+											<label for="appointment_dropoff_time"> Drop Off Time</label>
+											<input class="js__timepicker" type="text" placeholder="Select a drop-off time;"
+											id = "otc_appointment_dropofftime" name="dropoff_time" readonly="true"/>
+										</div>
+									</div>
+									<div class="singlerow">
+										<div class="rowleft">
+											<label for="appointment_pickup_time"> Pickup Time</label>
+											<input class="js__timepicker" type="text" placeholder="Select a pickup time;"
+											id = "otc_appointment_pickuptime" name="pickup_time" readonly="true"/>
+										</div>
+									</div>
+								</div>
+							</div>
+						</div><!-- /Schedule info -->
+
+						<input type="submit" value="Submit" data-rel="back" name="one-time_appointment_form_submit" id="one-time_appointment_form_submit" />
+					</form>
+
+					<script>
+						function updateOtc_v1make() {
+							//alert("updateOtc_v1make");
+							//var make = $('#Otc_v1make').val();
+							//alert(make);
+
+						};
+
+						load_onetime_appointment_form();
+
+						function load_onetime_appointment_form() {
+							fillServiceOption("one-time");
+							var appointment_location = $('#onetime_appointment_location_switch').val();
+							onetime_appointment_service_change();
+						};
+
+						function onetime_appointment_service_change() {
+							/*	var index = $('#otc_service_select').val();
+							 //	alert(index);
+							 switch(index) {
+							 case "1":
+							 $('#otc_appointment_service_type').val("Sedan Basic");
+							 $('#otc_appointment_price').val("27.95");
+							 break;
+							 case "2":
+							 $('#otc_appointment_service_type').val("Sedan Basic + Shampoo");
+							 $('#otc_appointment_price').val("37.99");
+							 break;
+							 };*/
+
+							var index = $('#otc_service_select').val();
+							$('#otc_appointment_service_type').val(service_list[index].abbr);
+							$('#otc_appointment_price').val(service_list[index].price);
+							app.showAlert(service_list[index].fullname, "INFO");
+
+						}
+					</script>
+				</div>
+			</div><!-- /content -->
+			<div data-role="footer" data-position="fixed">
+				<div class="ui-grid-b center">
+					<div class="ui-block-a ">
+						<a data-rel="back" class="ui-btn ui-shadow ui-corner-all ui-btn-inline ui-icon-back ui-btn-icon-left">Back</a>
+
+					</div>
+					<div class="ui-block-b ">
+
+					</div>
+					<div class="ui-block-c "></div>
+				</div>
+			</div><!-- /footer -->
+		</div><!-- /siteler_onetime_appointment_page -->
+
+		<div data-role="page" id="customer_check_schedule_page">
+			<div data-role="header" data-position="fixed" style="background-color:green">
+				<h1 style="color: white">My Orders</h1>
+			</div><!-- /header -->
+			<div role="main" class="ui-content jqm-content">
+				<div id="customer_schedule_div">
+					<ul data-role="listview" data-inset="true" id="customer_schedule"></ul>
+				</div>
+			</div><!-- /content -->
+			<div data-role="footer" data-position="fixed">
+				<div class="ui-grid-b center">
+					<div class="ui-block-a ">
+						<a data-rel="back"  class="ui-btn ui-shadow ui-corner-all ui-btn-inline
+						ui-icon-back ui-btn-icon-left">Back</a>
+					</div>
+					<div class="ui-block-b "></div>
+					<div class="ui-block-c ">
+						<a onclick="load_customer_schedule();"  class="ui-btn ui-shadow ui-corner-all ui-btn-inline
+						ui-icon-refresh ui-btn-icon-right">refresh</a>
+					</div>
+				</div>
+			</div><!-- /footer -->
+		</div><!-- /customer_check_schedule_page -->
+
+		<div data-role="page" data-dialog="true" id="customer_rating_dialog_page">
+
+			<div data-role="header" data-theme="b">
+				<h1>Rate the job</h1>
+			</div>
+
+			<div role="main" class="ui-content">
+				<div id="customer_rating_form" data-landmark-id="customer_rating_form" class="userform">
+					<p>
+						Your satisfaction is our top priority. Please rate this job in scale of 5, where 5 stands for 100% satisfaction.
+					</p>
+
+					<form >
+						<input type="hidden" id="customer_rating_appid" name="appid" />
+
+						<div id="star_rating">
+
+							<div class="vehicle-left">
+								your rating of this job:
+							</div>
+							<div class="vehicle-right">
+
+								<select name="rating" id="customer_rating"  >
+
+									<option value="5">5 stars</option>
+									<option value="4">4 stars</option>
+									<option value="3">3 stars</option>
+									<option value="2">2 stars</option>
+									<option value="1">1 stars</option>
+
+								</select>
+
+							</div>
+
+						</div>
+						<input type="submit" value="Submit"  name="submit" />
+
+					</form>
+				</div>
+			</div>
+		</div><!-- /customer_rating_dialog_page -->
+
+		<div data-role="page" id="customer_check_status_page">
+			<div data-role="header" data-position="fixed" style="background-color:green">
+				<h1 style="color: white">Check Status</h1>
+			</div><!-- /header -->
+			<div role="main" class="ui-content jqm-content">
+				<div id="customer_schedule_div">
+					<ul data-role="listview" data-inset="true" id="customer_appointment_status"></ul>
+
+				</div>
+				<div id="onetime_customer_rating_form" data-landmark-id="onetime_customer_rating_form">
+					<form name="onetime_customer_rating_form">
+						<div class="vehicle-row">
+
+						</div>
+
+					</form>
+				</div>
+			</div><!-- /content -->
+			<div data-role="footer" data-position="fixed">
+				<div class="ui-grid-b center">
+					<div class="ui-block-a ">
+						<a data-rel="back"  class="ui-btn ui-shadow ui-corner-all ui-btn-inline
+						ui-icon-back ui-btn-icon-left">Back</a>
+					</div>
+					<div class="ui-block-b "></div>
+					<div class="ui-block-c ">
+						<input type="button" onclick="enter_check_schedule()"   class="ui-btn ui-shadow ui-corner-all ui-btn-a" value="Refresh" />
+					</div>
+				</div>
+			</div><!-- /footer -->
+		</div><!-- /customer_check_status_page -->
+
+		<!--
+
+		<div data-role="page" id="customer_ballance_page">
+		<div data-role="header" data-position="fixed" style="background-color:green">
+		<h3 style="color: white">Monthly Statement</h3>
+		</div>
+		<div role="main" class="ui-content jqm-content">
+		<div id="customer_statement"></div>
+		</div>
+		<div data-role="footer" data-position="fixed">
+		<div class="ui-grid-b center">
+		<div class="ui-block-a ">
+		<a data-rel="back" class="ui-btn ui-shadow ui-corner-all ui-btn-inline ui-icon-back ui-btn-icon-left">Back</a>
+
+		</div>
+		<div class="ui-block-b "></div>
+		<div class="ui-block-c "></div>
+		</div>
+		</div>
+		<script>
+		var source = $("#customer-statement-template").html();
+		var template = Handlebars.compile(source);
+		var data = {
+		expense : {
+		start_balance : "$175",
+		end_balance : "$125",
+		jobs : [{
+		timerange : "8:24~12:00",
+		date : "Friday, Sep 7, 2014",
+		location : "Home",
+		vehicle : "Honda Accord",
+		service : "Sedan Basics",
+		expense : "$25"
+		}, {
+		timerange : "14:00 ~ 15:00",
+		date : "Thursday, Sep 17, 2014",
+		location : "Home",
+		vehicle : "Honda Accord",
+		service : "Sedan Basics",
+		expense : "$25"
+		}]
+		}
+		};
+		$("#customer_statement").html(template(data));
+		</script>
+		</div><!-- /customer_ballance_page -->
+
+		<div data-role="page" id="customer_promotion_page">
+			<div data-role="header" data-position="fixed" style="background-color:green">
+				<h3 style="color: white">Promotion</h3>
+			</div><!-- /header -->
+			<div role="main" class="ui-content jqm-content">
+				<div id="customer_promotion_div">
+					<ul data-role="listview" data-inset="true" id="customer_promotion"></ul>
+				</div>
+			</div><!-- /content -->
+			<div data-role="footer" data-position="fixed">
+				<div class="ui-grid-b center">
+					<div class="ui-block-a ">
+						<a data-rel="back" class="ui-btn ui-shadow ui-corner-all ui-btn-inline ui-icon-back ui-btn-icon-left">Back</a>
+					</div>
+					<div class="ui-block-b "></div>
+					<div class="ui-block-c "></div>
+				</div>
+			</div><!-- /footer -->
+		</div><!-- /customer_promotion_page -->
+
+		<div data-role="page" id="customer_edit_profile_page">
+			<div data-role="header" data-position="fixed" style="background-color:green">
+				<h1 style="color: white">Edit Profile</h1>
+			</div><!-- /header -->
+			<div role="main" class="ui-content jqm-content">
+				<div id="edit_customer_profile_form" data-landmark-id="edit_customer_profile_form">
+					<form name = "edit_customer_form" >
+						<!--personal info-->
+						<div class="ui-corner-all custom-corners">
+							<div class="ui-bar ui-bar-a">
+								<h2>Personal Info</h2>
+							</div>
+							<div class="ui-body ui-body-a">
+								<div class="singlerow">
+									<div class="rowleft">
+										First Name *
+									</div>
+									<div class="rowright">
+										<input type="text" id="xcp_fname" name="fname" class="half-input" placeholder="First Name"
+										onKeyup="autotab(this, edit_customer_form.lname, /^[A-Za-z]+$/, 'Please enter a valid fir name')"
+										data-clear-btn="true" autocomplete="off" autocorrect="off" autocapitalize="off" />
+										<input type="hidden" id="xcp_siteler_id" name="siteler_id"/>
+									</div>
+								</div>
+								<div class="singlerow">
+									<div class="rowleft">
+										Last Name *
+									</div>
+									<div class="rowright">
+										<input type="text" id="xcp_lname" name="lname" class="half-input" placeholder="Last Name"
+										onKeyup="autotab(this, edit_customer_form.password, /^[A-Za-z]+$/, 'Please enter a valid last name')"
+										data-clear-btn="true" autocomplete="off" autocorrect="off" autocapitalize="off" />
+									</div>
+								</div>
+
+								<div class="singlerow">
+									<div class="rowleft">
+										Siteler Account Password *
+									</div>
+									<div class="rowright">
+										<input type="password" name="password" id="xcp_upass"  class="half-input"  placeholder="User Password" data-clear-btn="true" autocomplete="off" autocorrect="off" autocapitalize="off" />
+									</div>
+								</div>
+								<div class="singlerow">
+									<div class="rowleft">
+										Work Email
+									</div>
+									<div class="rowright">
+										<input type="email" name="workemail" id="xcp_workemail"  class="half-input"  placeholder="Work Email"
+										onblur="autotab(this, contactform.email,/^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,4}$/,'Please enter a valid email')"
+										data-clear-btn="true" autocomplete="off" autocorrect="off" autocapitalize="off"  />
+									</div>
+								</div>
+								<div class="singlerow">
+									<div class="rowleft">
+										Peronal Email *
+									</div>
+									<div class="rowright">
+										<input type="email" name="email" id="xcp_registeremail" class="half-input"  placeholder="Personal Email"onblur="autotab(this, contactform.xcp_cellph1,/^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,4}$/,'Please enter a valid email')"
+										data-clear-btn="true" autocomplete="off" autocorrect="off" autocapitalize="off"  />
+										<span id="usercheck1"></span>
+									</div>
+								</div>
+								<div class="singlerow">
+									<div class="rowleft">
+										Cell Phone *
+									</div>
+									<div class="rowright">
+										<div class="ui-grid-b ">
+											<div class="ui-block-a ">
+												<input type="text" class="phone-input" name="cellph1" id="xcp_cellph1"
+												onKeyup="autotab(this, contactform.workph2, /^[0-9]+$/, 'Please enter a valid phone number')"
+												placeholder="###" />
+											</div>
+											<div class="ui-block-b ">
+												<input type="text" class="phone-input" name="cellph2" id="xcp_cellph2"
+												onKeyup="autotab(this, contactform.workph3, /^[0-9]+$/, 'Please enter a valid phone number')"
+												placeholder="###" />
+											</div>
+											<div class="ui-block-c ">
+												<input type="text" class="phone-input" name="cellph3" id="xcp_cellph3"
+												onKeyup="autotab(this, contactform.company, /^[0-9]+$/, 'Please enter a valid phone number')"
+												placeholder="####" />
+											</div>
+										</div>
+									</div>
+								</div>
+							</div>
+						</div><!--personal info-->
+						<!--work info-->
+						<div class="ui-corner-all custom-corners">
+							<div class="ui-bar ui-bar-a">
+								<h2>Work Info</h2>
+							</div>
+							<div class="ui-body ui-body-a">
+								<div class="singlerow">
+									<div class="rowleft">
+										Company
+									</div>
+									<div class="rowright">
+										<input type="text" name="company" id="xcp_company" class="half-input"  placeholder="Company Name" data-clear-btn="true" autocomplete="off" autocorrect="off" autocapitalize="off" />
+									</div>
+									<div class="singlerow">
+										<div class="rowleft">
+											Company Address
+										</div>
+										<div class="rowright">
+											<!--Attention this was written as class ="Strees" before-->
+											<input type="text" name="company_street" id="xcp_company_street" placeholder="Street" class="Street" data-clear-btn="true" autocomplete="off" autocorrect="off" autocapitalize="off" />
+											<div class="ui-grid-b ">
+												<div class="ui-block-a ">
+													<input type="text" name="company_city" id="xcp_company_city" placeholder="City" class="home-address" data-clear-btn="true" autocomplete="off" autocorrect="off" autocapitalize="off" />
+												</div>
+												<div class="ui-block-b ">
+													<!--<input type="text" name="company_state" id = "xcp_company_state" placeholder="State" class="home-address" data-clear-btn="true" autocomplete="off" autocorrect="off" autocapitalize="off"/>-->
+													<select name="state">
+														<option value="AL">Alabama</option>
+														<option value="AK">Alaska</option>
+														<option value="AZ">Arizona</option>
+														<option value="AR">Arkansas</option>
+														<option value="CA">California</option>
+														<option value="CO">Colorado</option>
+														<option value="CT">Connecticut</option>
+														<option value="DE">Delaware</option>
+														<option value="DC">District of Columbia</option>
+														<option value="FL">Florida</option>
+														<option value="GA">Georgia</option>
+														<option value="HI">Hawaii</option>
+														<option value="ID">Idaho</option>
+														<option value="IL">Illinois</option>
+														<option value="IN">Indiana</option>
+														<option value="IA">Iowa</option>
+														<option value="KS">Kansas</option>
+														<option value="KY">Kentucky</option>
+														<option value="LA">Louisiana</option>
+														<option value="ME">Maine</option>
+														<option value="MD">Maryland</option>
+														<option value="MA">Massachusetts</option>
+														<option value="MI">Michigan</option>
+														<option value="MN">Minnesota</option>
+														<option value="MS">Mississippi</option>
+														<option value="MO">Missouri</option>
+														<option value="MT">Montana</option>
+														<option value="NE">Nebraska</option>
+														<option value="NV">Nevada</option>
+														<option value="NH">New Hampshire</option>
+														<option value="NJ">New Jersey</option>
+														<option value="NM">New Mexico</option>
+														<option value="NY">New York</option>
+														<option value="NC">North Carolina</option>
+														<option value="ND">North Dakota</option>
+														<option value="OH">Ohio</option>
+														<option value="OK">Oklahoma</option>
+														<option value="OR">Oregon</option>
+														<option value="PA">Pennsylvania</option>
+														<option value="RI">Rhode Island</option>
+														<option value="SC">South Carolina</option>
+														<option value="SD">South Dakota</option>
+														<option value="TN">Tennessee</option>
+														<option value="TX">Texas</option>
+														<option value="UT">Utah</option>
+														<option value="VT">Vermont</option>
+														<option value="VA">Virginia</option>
+														<option value="WA">Washington</option>
+														<option value="WV">West Virginia</option>
+														<option value="WI">Wisconsin</option>
+														<option value="WY">Wyoming</option>
+													</select>
+												</div>
+												<div class="ui-block-c ">
+													<input type="text" name="company_zip" id = "xcp_company_zip"  placeholder="Zip"
+													onKeyup="autotab(this, contactform.workph1, /^[0-9]+$/, 'Please enter a valid phone number')"
+													class="home-address" data-clear-btn="true" autocomplete="off" autocorrect="off" autocapitalize="off"/>
+												</div>
+											</div>
+										</div>
+									</div>
+									<div class="singlerow">
+										<div class="rowleft">
+											Work Phone
+										</div>
+										<div class="rowright">
+											<div class="ui-grid-b ">
+												<div class="ui-block-a ">
+													<input type="text" class="phone-input" name="workph1" id="xcp_workph1"
+													onKeyup="autotab(this, contactform.workph2, /^[0-9]+$/, 'Please enter a valid phone number')"
+													placeholder="###" maxlength ="3" />
+												</div>
+												<div class="ui-block-b ">
+													<input type="text" class="phone-input" name="workph2" id="xcp_workph2"
+													onKeyup="autotab(this, contactform.workph2, /^[0-9]+$/, 'Please enter a valid phone number')"
+													placeholder="###" maxlength = "3" />
+												</div>
+												<div class="ui-block-c ">
+													<input type="text" class="phone-input" name="workph3" id="xcp_workph3"
+													onKeyup="autotab(this, contactform.street, /^[0-9]+$/, 'Please enter a valid phone number')"
+													placeholder="####" maxlength = "4" />
+												</div>
+											</div>
+										</div>
+									</div>
+									<!--work phone-->
+								</div>
+							</div>
+						</div><!--work info-->
+						<!--address-->
+						<div class="ui-corner-all custom-corners">
+							<div class="ui-bar ui-bar-a">
+								<h2>Address</h2>
+							</div>
+							<div class="ui-body ui-body-a">
+								<div class="home-section">
+									<div class="singlerow">
+										<div class="rowleft">
+											Home Address *
+										</div>
+										<div class="rowright">
+											<input type="text" name="street" id="xcp_street" placeholder="Street" class="Strees"
+											data-clear-btn="true" autocomplete="off" autocorrect="off" autocapitalize="off" />
+											<div class="ui-grid-b ">
+												<div class="ui-block-a ">
+													<input type="text" name="city" id="xcp_city" placeholder="City" class="home-address" data-clear-btn="true" autocomplete="off" autocorrect="off" autocapitalize="off" />
+												</div>
+												<div class="ui-block-b ">
+													<input type="text" name="state" id = "xcp_state" placeholder="State" class="home-address" data-clear-btn="true" autocomplete="off" autocorrect="off" autocapitalize="off"/>
+
+													<!--
+													<select name="state">
+													<option value="AL">Alabama</option>
+													<option value="AK">Alaska</option>
+													<option value="AZ">Arizona</option>
+													<option value="AR">Arkansas</option>
+													<option value="CA">California</option>
+													<option value="CO">Colorado</option>
+													<option value="CT">Connecticut</option>
+													<option value="DE">Delaware</option>
+													<option value="DC">District of Columbia</option>
+													<option value="FL">Florida</option>
+													<option value="GA">Georgia</option>
+													<option value="HI">Hawaii</option>
+													<option value="ID">Idaho</option>
+													<option value="IL">Illinois</option>
+													<option value="IN">Indiana</option>
+													<option value="IA">Iowa</option>
+													<option value="KS">Kansas</option>
+													<option value="KY">Kentucky</option>
+													<option value="LA">Louisiana</option>
+													<option value="ME">Maine</option>
+													<option value="MD">Maryland</option>
+													<option value="MA">Massachusetts</option>
+													<option value="MI">Michigan</option>
+													<option value="MN">Minnesota</option>
+													<option value="MS">Mississippi</option>
+													<option value="MO">Missouri</option>
+													<option value="MT">Montana</option>
+													<option value="NE">Nebraska</option>
+													<option value="NV">Nevada</option>
+													<option value="NH">New Hampshire</option>
+													<option value="NJ">New Jersey</option>
+													<option value="NM">New Mexico</option>
+													<option value="NY">New York</option>
+													<option value="NC">North Carolina</option>
+													<option value="ND">North Dakota</option>
+													<option value="OH">Ohio</option>
+													<option value="OK">Oklahoma</option>
+													<option value="OR">Oregon</option>
+													<option value="PA">Pennsylvania</option>
+													<option value="RI">Rhode Island</option>
+													<option value="SC">South Carolina</option>
+													<option value="SD">South Dakota</option>
+													<option value="TN">Tennessee</option>
+													<option value="TX">Texas</option>
+													<option value="UT">Utah</option>
+													<option value="VT">Vermont</option>
+													<option value="VA">Virginia</option>
+													<option value="WA">Washington</option>
+													<option value="WV">West Virginia</option>
+													<option value="WI">Wisconsin</option>
+													<option value="WY">Wyoming</option>
+													</select> -->
+												</div>
+												<div class="ui-block-c ">
+													<input type="text" name="zip" id = "xcp_zip"  placeholder="Zip" class="home-address"
+													onKeyup="autotab(this, contactform.workph3, /^[0-9]+$/, 'Please enter a valid phone number')" data-clear-btn="true" autocomplete="off" autocorrect="off" autocapitalize="off"/>
+												</div>
+											</div>
+										</div>
+									</div>
+									<div class="singlerow">
+										<div class="rowleft">
+											Home Phone
+										</div>
+										<div class="rowright">
+											<div class="ui-grid-b ">
+												<div class="ui-block-a ">
+													<input type="text" class="phone-input" name="homeph1" id="xcp_homeph1" placeholder="###" />
+												</div>
+												<div class="ui-block-b ">
+													<input type="text" class="phone-input" name="homeph2" id="xcp_homeph2"  placeholder="###" />
+												</div>
+												<div class="ui-block-c ">
+													<input type="text" class="phone-input" name="homeph3" id="xcp_homeph3" placeholder="####" />
+												</div>
+											</div>
+										</div>
+									</div><!--home phone-->
+								</div>
+							</div>
+						</div><!--address-->
+
+						<div class="ui-corner-all custom-corners">
+							<div class="ui-bar ui-bar-a">
+								<h2>Vehicle Info</h2>
+							</div>
+							<div class="ui-body ui-body-a">
+								<div class="vehicle-container">
+									<div class="vehicle-1">
+										<h3>Vehicle 1</h3>
+										<div class="vehicle-row">
+											<div class="vehicle-left">
+												Make *
+											</div>
+											<div class="vehicle-right">
+												<input type="text" name="v1make" id = "xcp_v1make" placeholder="Make"
+												onKeyup="autotab(this, contactform.xcp_v1model,/^[a-z\s]+$/i,'Please enter valid Car Make')" maxlength ="50"
+												data-clear-btn="true" autocomplete="off" autocorrect="off" autocapitalize="off"/>
+											</div>
+										</div>
+										<div class="vehicle-row">
+											<div class="vehicle-left">
+												Model *
+											</div>
+											<div class="vehicle-right">
+												<input type="text" name="v1model" id = "xcp_v1model" placeholder="Model"
+												onKeyup="autotab(this, contactform.xcp_v1color,/^[a-z\s0-9]+$/i,'Please enter valid car model')" maxlength ="50"
+												data-clear-btn="true" autocomplete="off" autocorrect="off" autocapitalize="off"/>
+											</div>
+										</div>
+										<div class="vehicle-row">
+											<div class="vehicle-left">
+												Color *
+											</div>
+											<div class="vehicle-right">
+												<input type="text" name="v1color" id = "xcp_v1color" placeholder="Color" data-clear-btn="true" autocomplete="off" autocorrect="off" autocapitalize="off"/>
+											</div>
+										</div>
+										<div class="vehicle-row">
+											<div class="vehicle-left">
+												License plate *
+											</div>
+											<div class="vehicle-right">
+												<input type="text" name="v1license" id = "xcp_v1license" placeholder="License Plate #" data-clear-btn="true" autocomplete="off" autocorrect="off" autocapitalize="off"/>
+											</div>
+										</div>
+									</div>
+									<div class="vehicle-2">
+										<h3>Vehicle 2</h3>
+										<div class="vehicle-row">
+											<div class="vehicle-left">
+												Make
+											</div>
+											<div class="vehicle-right">
+												<input type="text" name="v2make" id = "xcp_v2make" placeholder="Make"
+												onKeyup="autotab(this, contactform.xcp_v2model,/^[a-z\s0-9]+$/i,'Please enter valid car model')"maxlength ="50"
+												data-clear-btn="true" autocomplete="off" autocorrect="off" autocapitalize="off"/>
+											</div>
+										</div>
+										<div class="vehicle-row">
+											<div class="vehicle-left">
+												Model
+											</div>
+											<div class="vehicle-right">
+												<input type="text" name="v2model" id = "xcp_v2model" placeholder="Model"
+												onKeyup="autotab(this, contactform.xcp_v2color,/^[a-z\s0-9]+$/i,'Please enter valid car model')"maxlength ="50"
+												data-clear-btn="true" autocomplete="off" autocorrect="off" autocapitalize="off" />
+											</div>
+										</div>
+										<div class="vehicle-row">
+											<div class="vehicle-left">
+												Color
+											</div>
+											<div class="vehicle-right">
+												<input type="text" name="v2color" id = "xcp_v2color"  placeholder="Color"
+												onKeyup="autotab(this, contactform.exp_year,/^[a-z\s]+$/i,'Please enter valid color')"
+												maxlength="50"
+												data-clear-btn="true" autocomplete="off" autocorrect="off" autocapitalize="off" />
+											</div>
+										</div>
+										<div class="vehicle-row">
+											<div class="vehicle-left">
+												License plate
+											</div>
+											<div class="vehicle-right">
+												<input type="text" name="v2license" id = "xcp_v2license" placeholder="License #"
+												data-clear-btn="true" autocomplete="off" autocorrect="off" autocapitalize="off"/>
+											</div>
+										</div>
+									</div>
+								</div>
+							</div>
+						</div><!--vehicle info-->
+						<input type="submit" value="Update" data-rel="back" name="submit" />
+					</form>
+				</div>
+			</div><!-- /content -->
+			<div data-role="footer" data-position="fixed">
+				<div class="ui-grid-b center">
+					<div class="ui-block-a ">
+						<a data-rel="back" data-rel="back" class="ui-btn ui-shadow ui-corner-all ui-btn-inline
+						ui-icon-back ui-btn-icon-left">Back</a>
+					</div>
+					<div class="ui-block-b "></div>
+					<div class="ui-block-c "></div>
+				</div>
+			</div><!-- /footer -->
+		</div><!-- /customer_edit_profile_page -->
+
+		<div data-role="page" id="customer_page">
+			<div data-role="header" data-position="fixed" style="background-color:green">
+				<h1 style="color: white">Customer</h1>
+				<div class="ui-btn-left" data-role="controlgroup" data-type="horizontal">
+					<a href="#customer_menulist" data-role="button" data-icon="bullets">menu</a>
+				</div>
+			</div><!-- /header -->
+			<script>
+				function load_membershipcard_form() {
+					var srcimage = "http://www.pineconetassel.com/sitelertest/qrcodes/" + siteler_id + ".png";
+					//var srcimage = "http://www.pineconetassel.com/sitelertest/qrcodes/M0000186.png";
+					//alert(srcimage);
+					//console.log(srcimage);
+
+					$('#membershipcard_text').val("MemberID:" + siteler_id);
+					$('#membershipcard_img').attr('src', srcimage);
+				}
+
+			</script>
+			<div role="main" class="ui-content jqm-content">
+				<div class="ui-content jqm-content" id = "membershipcard">
+					<textarea  rows="3" id="membershipcard_text" name="memberid" style="font-size:12px;" readonly="true">MemberID:</textarea>
+					<img id="membershipcard_img" style="width:100%; " >
+				</div>
+			</div><!-- /content -->
+			<!-- /footer -->
+			<div data-role="footer" data-position="fixed">
+				<div class="ui-grid-b center">
+					<div class="ui-block-a ">
+						<a onclick="sign_out();" class="ui-btn ui-shadow ui-corner-all ui-btn-inline
+						ui-icon-back ui-btn-icon-left">Sign Out</a>
+					</div>
+					<div class="ui-block-b ">
+
 					</div>
 					<div class="ui-block-c ">
-						<a href="#customer_page" onclick="enter_site()"  class="ui-btn ui-shadow ui-corner-all ui-btn-inline
-						ui-icon-back ui-btn-icon-left">Quit</a>
+
+						<div class="ui-btn-right" >
+							<a href="#customer_menulist" data-role="button" data-icon="bullets">menu</a>
+						</div>
 					</div>
 				</div>
+			</div><!-- /footer -->
 
-			</div>			<!-- /footer -->  
-			 
-			<script>
-				function enter_site(){
-				  //  map.clear();
-				//	map.off();
-					map.setVisible(false);
-					//map.remove();
-					//alert("test");
-				}
+			<div data-role="panel" id="customer_menulist" data-position="left" data-display="overlay">
+				<img src="images/panel_header1.png" style="width:100%; height: auto;" >
+				<ul data-role="listview">
+
+					<li menu_action="customer_make_appointment">
+						Make an appointment
+					</li>
+					<li menu_action="customer_check_schedule">
+						Check Status
+					</li>
+
+					<li menu_action="customer_edit_profile">
+						Edit Profile
+					</li>
+
+					<li menu_action="member_contact_us">
+						Contact Us
+					</li>
+					<!--		<li menu_action="sign_out">
+					Sign Out
+					</li>
+					-->
+				</ul>
+
+			</div><!-- /customer_menulist menu panel -->
+
+		</div><!-- /customer_page -->
+
+		<div data-role="page" id="worker_page">
+			<div data-role="header" data-position="fixed" style="background-color:green">
+				<h1 style="color: white">Worker</h1>
+
+				<div class="ui-btn-left" data-role="controlgroup" data-type="horizontal">
+					<a href="#worker_menulist" data-role="button" data-icon="bullets">menu</a>
+				</div>
+
+			</div><!-- /header -->
+
+			<div role="main" class="ui-content jqm-content" >
+				<div data-demo-html="true">
+					<div id="worker_earning"></div>
+				</div><!--/demo-html -->
+			</div><!-- /content -->
+
+			<div data-role="footer" data-position="fixed">
+				<div class="ui-grid-b center">
+					<div class="ui-block-a ">
+
+						<a onclick="sign_out();" class="ui-btn ui-shadow ui-corner-all ui-btn-inline
+						ui-icon-back ui-btn-icon-left">Sign Out</a>
+					</div>
+					<div class="ui-block-b "></div>
+					<div class="ui-block-c ">
+						<div class="ui-btn-right" data-role="controlgroup" data-type="horizontal">
+							<a href="#worker_menulist" data-role="button" data-icon="bullets">menu</a>
+						</div>
+
+					</div>
+				</div>
+			</div><!-- /footer -->
+
+			<div data-role="panel" id="worker_menulist" data-position="left" data-display="overlay">
+				<img src="images/panel_header1.png" style="width:100%; height: auto;">
+
+				<ul data-role="listview">
+					
+					<li menu_action="get_job_direction">
+						Job Map
+					</li>
+					
+					<li menu_action="worker_QR_scanner">
+						QR Scanner
+					</li>
+					
+					<li menu_action="worker_assigned_joblist">
+						Assigen Job List
+					</li>
+					<li menu_action="worker_checkedin_joblist">
+						Checked-in Job List
+					</li>
+
+					<li menu_action="worker_completed_joblist">
+						Completed Job List
+					</li>
+
+
+					<li menu_action="worker_check_ballance">
+						Check Earning
+					</li>
+
+					<li menu_action="worker_edit_profile">
+						Edit Profile
+					</li>
+
+					<li menu_action="member_contact_us">
+						Contact Us
+					</li>
+					<!--	<li menu_action="sign_out">
+					Sign Out
+					</li>
+					-->
+				</ul>
+
+			</div><!-- /menu panel -->
+		</div><!-- /worker_page -->
+
+		<div data-role="page" id="worker_onsite_QRScanner_page">
+			<div data-role="header" data-position="fixed" style="background-color:green">
+				<h1 style="color: white">Check In</h1>
+
+			</div><!-- /header -->
+			<div role="main" class="ui-content jqm-content">
+					<input type="button" onclick="qrScanner()"   class="ui-btn ui-shadow ui-corner-all ui-btn-a" value="QR Scanner" />
+					<div class="ui-content jqm-content" id="jobinfo" data-role="fieldcontain">
+						<label for="qrcode_result">QR Code:</label>
+						<textarea  rows="3" id="qrcode_result" style="font-size:12px;color:green" readonly="true"></textarea>
+						<label for="customer_joblist">Job Detail:</label>
+						<ul id="customer_joblist_qr" data-role="listview" data-inset="true"></ul>
+
+					</div>
+
 				
-			</script>
-    </div><!-- /page -->
-    
-    	<div data-role="page" class="jqm-demos" id="customer_page" data-title="Siteler Customer">
-			<div data-role="header" data-position="fixed" style="margin-left: auto; margin-right: auto;width: 100%;">
-				<!--REPEATING TABLE HERE-->
-				<table>
-					<tr>
-						<td>
-							<div id="logo">
-								<img src="images/logo.png" />
-							</div>
-						</td>
-						<td style="font-size:12px;">
-							<p>
-								<br/>
-								765 Mabury Rd <br/>
-								San Jose, CA 95133
-							</p> Tel: 888-748-3537 <br/>
-							cs@sitelerwash.com
-						</td>
-					</tr>
-				</table>
-			</div><!-- /header -->
-			<div role="main" class="ui-content jqm-content jqm-fullwidth">
-				<div id="background"></div>
-				<div data-role="collapsible" data-collapsed="false">
-					<ul data-role="listview" id="member_menu" style="opacity: 0.75;background: none;">
-						<li>
-							<a data-transition="fade" onclick="becomeMemberClick(); return false;">
-								<h2>Become a Member</h2>
-								<p style="font-size:14px;">
-								Sign up to recieve 5~50% discount.
-								</p>
-							</a>
-						</li>
-						<li>
-							<a data-transition="fade" onclick="doMemberClick(); return false;">
-								<h2>Already a Member</h2>
-								<p style="font-size:14px;">Enjoy member service</p>
-							</a>
-						</li>
-						<li>
-							<a data-transition="fade" onclick="onetimeAppointmentClick(); return false;"><h2>One-time Appointment</h2>
-								<p style="font-size:14px;">
-								Let up refresh your spirit.
-							</p></a>
-						</li>
-						<li>
-							<a href="#contact_us_page"><h2>Contact Us</h2>
-								<p style="font-size:14px;">
-								Tell us your needs.
-							</p></a>
-						</li>
-					</ul>
-				</div>
-				<script>
-					function doMemberClick() {
-							//	alert(customer_signedin);
-						if (!customer_signedin)
-							window.location = '#customer_login_dialog_page';
-						else
-							window.location = '#customer_menu_page';
-					}
-					function becomeMemberClick() {
-							//	alert(customer_signedin);
-						app.showAlert("As a regular Siteler services user, Siteler member has $50 initial deposit in the account and is always eligible for 5-50% discount.", "INFO");
-						window.location = '#customer_member_page';
-					}
-					function onetimeAppointmentClick() {
-						app.showAlert("One time customer won’t be eligible for the membership prices. We would suggest you take 1-2 minutes to register as a member and save at least 5% right away for your first purchase.", "INFO");
-						load_onetime_appointment_form();
-						window.location = '#siteler_onetime_appointment_page';
-					}
-				</script>
 			</div><!-- /content -->
-			<div data-role="footer" data-position="fixed" >
-				<div data-demo-html="true">
-					<div data-role="navbar">
-						<ul>
-							<li>
-								<a href="#customer_page" class="ui-btn-active">Customer</a>
-							</li>
-							<li>
-								<a href="#worker_page" data-transition="fade" >Worker</a>
-							</li>
-						</ul>
-					</div><!-- /navbar -->
-				</div><!--/demo-html -->
-			</div><!-- /footer -->
-		</div><!-- /customer_page -->
-		<div data-role="page" class="jqm-demos" id="worker_page" data-title="Siteler Worker">
-			<div data-role="header" data-position="fixed" style="margin-left: auto; margin-right: auto;width: 100%;">
-				<!--REPEATING TABLE HERE-->
-				<table>
-					<tr>
-						<td>
-							<div id="logo">
-								<img src="images/logo.png" />
-							</div></td><td style="font-size:12px;">
-							<p>
-								<br/>
-								765 Mabury Rd <br/>
-								San Jose, CA 95133
-							</p> Tel: 888-748-3537 <br/>
-								cs@sitelerwash.com
-						</td>
-					</tr>
-				</table>
-			</div><!-- /header -->
-			<div role="main" class="ui-content jqm-content jqm-fullwidth">
-				<div id="background" style="background: url(images/car3.png) no-repeat center center fixed !important;"></div>
-				<div data-role="collapsible" data-collapsed="false">
-					<ul data-role="listview"  id="worker_main_menu" data-shadow="false" data-inset="false" data-corners="false" style="opacity: 0.75;background: transparent;" >
-						<li >
-							<a data-transition="fade" onclick="becomeWorkerClick(); return false;"> <h2>Become a Siteler</h2>
-								<p style="font-size:14px;">
-								Sign up to earn up to $100 /hour.
-							</p></a>
-						</li>
-						<li>
-							<a data-transition="fade" onclick="doWorkerClick(); return false;" > <h2>Already a Siteler</h2>
-								<p style="font-size:14px;">
-								Use the onsite job kit.
-							</p></a>
-						</li> 
-					</ul>
-				</div>
-				<script>
-					function becomeWorkerClick() {
-						app.showAlert("Siteler is professional and certified car wash & detailing technician and earns up to $100 per hour. Please carefully fill the form and start your career with Siteler!", "INFO");
-						window.location = '#become_worker_page';
-					}
-					function doWorkerClick() {
-						//alert(worker_signedin);
-						/*		if (!worker_signedin)
-										window.location = '#worker_login_dialog_page';
-								else
-										window.location = '#worker_menu_page';*/
-						   map.setVisible(true);
-						  loadPage(map, "jobmap");
 
-						window.location = '#mapview_page';
-					}
-				</script>
-			</div><!-- /content -->
-			<div data-role="footer" data-position="fixed" >
-				<div data-demo-html="true">
-					<div data-role="navbar">
-						<ul>
-							<li>
-								<a href="#customer_page" data-transition="fade" >Customer</a>
-							</li>
-							<li>
-								<a href="#" class="ui-btn-active" >Worker</a>
-							</li>
-						</ul>
-					</div><!-- /navbar -->
-				</div><!--/demo-html -->
+			<div data-role="footer" data-position="fixed">
+				<div class="ui-grid-b center">
+					<div class="ui-block-a ">
+						<div class="ui-block-a ">
+							<a href="#worker_page" class="ui-btn ui-shadow ui-corner-all ui-btn-inline
+							ui-icon-back ui-btn-icon-left">Back</a>
+						</div>
+					</div>
+					<div class="ui-block-b ">
+
+					</div>
+					<div class="ui-block-c "></div>
+				</div>
 			</div><!-- /footer -->
-		</div><!-- /customer_page -->
-    
-    
-    
-    
-    
-    
-    
-    
-  </body>
+		</div><!-- /worker_onsite_QRScanner_page -->
+
+
+		<div data-role="page" id="worker_assigned_joblist_page">
+			<div data-role="header" data-position="fixed" style="background-color:green">
+				<h1 style="color: white">Assigned Jobs</h1>
+			</div><!-- /header -->
+			<div role="main" class="ui-content jqm-content">
+				<div data-demo-html="true">
+					<strong>click on each job to view detail.</strong>
+					<ul id="worker_assigned_joblist" data-role="listview" data-inset="true"></ul>
+
+				</div><!--/demo-html -->
+			</div><!-- /content -->
+			<div data-role="footer" data-position="fixed">
+				<div class="ui-grid-b center">
+					<div class="ui-block-a ">
+						<a data-rel="back" class="ui-btn ui-shadow ui-corner-all ui-btn-inline ui-icon-back ui-btn-icon-left">Back</a>
+
+					</div>
+					<div class="ui-block-b ">
+						<input type="button" onclick="load_worker_schedule('assigned');"   class="ui-btn ui-shadow ui-corner-all ui-btn-a" value="Refresh" />
+
+					</div>
+					<div class="ui-block-c ">
+
+					</div>
+				</div>
+			</div><!-- /footer -->
+		</div><!-- /worker_assigned_joblist_page -->
+
+
+		<div data-role="page" id="worker_checkedin_joblist_page">
+			<div data-role="header" data-position="fixed" style="background-color:green">
+				<h1 style="color: white">Checked-in Jobs</h1>
+			</div><!-- /header -->
+			<div role="main" class="ui-content jqm-content">
+				<div data-demo-html="true">
+					<strong>click on each job to view detail.</strong>
+					<ul id="worker_checkedin_joblist" data-role="listview" data-inset="true"></ul>
+
+				</div><!--/demo-html -->
+			</div><!-- /content -->
+			<div data-role="footer" data-position="fixed">
+				<div class="ui-grid-b center">
+					<div class="ui-block-a ">
+						<a data-rel="back" class="ui-btn ui-shadow ui-corner-all ui-btn-inline ui-icon-back ui-btn-icon-left">Back</a>
+
+					</div>
+					<div class="ui-block-b ">
+						<input type="button" onclick="load_worker_schedule('checkedin');"   class="ui-btn ui-shadow ui-corner-all ui-btn-a" value="Refresh" />
+
+					</div>
+					<div class="ui-block-c ">
+
+					</div>
+				</div>
+			</div><!-- /footer -->
+		</div><!-- /worker_checkedin_joblist_page -->
+
+
+		<div data-role="page" id="worker_completed_joblist_page">
+			<div data-role="header" data-position="fixed" style="background-color:green">
+				<h1 style="color: white">Completed Jobs</h1>
+			</div><!-- /header -->
+			<div role="main" class="ui-content jqm-content">
+				<div data-demo-html="true">
+					<strong>click on each job to view detail.</strong>
+					<ul id="worker_completed_joblist" data-role="listview" data-inset="true"></ul>
+
+				</div><!--/demo-html -->
+			</div><!-- /content -->
+			<div data-role="footer" data-position="fixed">
+				<div class="ui-grid-b center">
+					<div class="ui-block-a ">
+						<a data-rel="back" class="ui-btn ui-shadow ui-corner-all ui-btn-inline ui-icon-back ui-btn-icon-left">Back</a>
+
+					</div>
+					<div class="ui-block-b ">
+						<input type="button" onclick="load_worker_schedule('completed');"   class="ui-btn ui-shadow ui-corner-all ui-btn-a" value="Refresh" />
+
+					</div>
+					<div class="ui-block-c ">
+
+					</div>
+				</div>
+			</div><!-- /footer -->
+		</div><!-- /worker_checkedin_joblist_page -->
+
+
+
+
+
+
+		<div data-role="page" id="worker_check_schedule_job_page">
+			<div data-role="header" data-position="fixed" style="background-color:green">
+				<h1 style="color: white"> Job Detail</h1>
+			</div><!-- /header -->
+			<div role="main" class="ui-content jqm-content">
+				<div id="job_owner_detail"></div>
+			</div><!-- /content -->
+			<div data-role="footer" data-position="fixed">
+				<div class="ui-grid-b center">
+					<div class="ui-block-a ">
+						<a data-rel="back" class="ui-btn ui-shadow ui-corner-all ui-btn-inline ui-icon-back ui-btn-icon-left">Back</a>
+
+					</div>
+					<div class="ui-block-b "></div>
+					<div class="ui-block-c "></div>
+				</div>
+			</div><!-- /footer -->
+		</div><!-- /worker_check_schedule_job_page -->
+
+		<div data-role="page" id="worker_view_account_page">
+			<div data-role="header" data-position="fixed" style="background-color:green">
+				<h1 style="color: white">Earnings</h1>
+			</div><!-- /header -->
+			<div role="main" class="ui-content jqm-content">
+				<div data-demo-html="true">
+					<div id="worker_earning1">
+						There is no earning data for you yet.
+					</div>
+				</div><!--/demo-html -->
+			</div><!-- /content -->
+			<div data-role="footer" data-position="fixed">
+				<div class="ui-grid-b center">
+					<div class="ui-block-a ">
+						<a href="#worker_page" class="ui-btn ui-shadow ui-corner-all ui-btn-inline ui-icon-back ui-btn-icon-left">Back</a>
+					</div>
+					<div class="ui-block-b "></div>
+					<div class="ui-block-c "></div>
+				</div>
+			</div><!-- /footer -->
+			<script>
+				/*	var source = $("#worker-earning-template").html();
+				 var template = Handlebars.compile(source);
+				 var data = {
+				 earnings : {
+				 total : "$45",
+				 jobs : [{
+				 timerange : "8:24~12:00",
+				 date : "Friday, Sep 7, 2014",
+				 address : "Google",
+				 vehicle : "Honda Accord",
+				 earning : "$20"
+				 }, {
+				 timerange : "14:00 ~ 15:00",
+				 date : "Thursday, Sep 17, 2014",
+				 address : "Yahoo",
+				 vehicle : "Honda Accord",
+				 earning : "$25"
+				 }]
+				 }
+				 };
+				 $("#worker_earning1").html(template(data)); */
+			</script>
+		</div><!-- /worker_view_account_page -->
+
+		<div data-role="page" id="worker_get_direction_page">
+			<div data-role="header" data-position="fixed" style="background-color:green">
+				<h1 style="color: white">Get Job direction</h1>
+			</div><!-- /header -->
+			<div role="main" class="ui-content jqm-content">
+				<div id='container' >
+
+					<div id="one">
+						<div id="map_canvas"></div>
+					</div>
+					<button id="direction" data-ajax="false">
+						Click to get Job Site Direction
+					</button>
+
+				</div>
+
+			</div><!-- /content -->
+			<div data-role="footer" data-position="fixed">
+				<div class="ui-grid-b center">
+					<div class="ui-block-a ">
+						<a onclick="leave_job_map();" class="ui-btn ui-shadow ui-corner-all ui-btn-inline ui-icon-back ui-btn-icon-left">Back</a>
+					</div>
+					<div class="ui-block-b "></div>
+					<div class="ui-block-c "></div>
+				</div>
+			</div><!-- /footer -->
+
+		</div><!-- /worker_get_direction_page -->
+
+		<div data-role="page" id="worker_edit_profile_page">
+			<div data-role="header" data-position="fixed" style="background-color:green">
+				<h1 style="color: white">Profile</h1>
+			</div><!-- /header -->
+
+			<div role="main" class="ui-content jqm-content">
+				<div id="edit_worker_profile_form" data-landmark-id="edit_worker_profile_form">
+					<form name = "worker_edit_profile_form">
+						<!--personal info-->
+						<div class="ui-corner-all custom-corners">
+							<div class="ui-bar ui-bar-a">
+								<h2>Personal Info</h2>
+							</div>
+							<div class="ui-body ui-body-a">
+								<div class="single-row">
+									<div class="row-left">
+										* First Name
+									</div>
+									<div class="row-right">
+										<input type="text" name="fname" id="xwp_fname"
+										onKeyup="autotab(this, worker_edit_profile_form.lname, /^[A-Za-z]+$/, 'Please enter a valid first name')" />
+									</div>
+								</div>
+								<div class="single-row">
+									<div class="row-left">
+										* Last Name
+									</div>
+									<div class="row-right">
+										<input type="text" name="lname" id="xwp_lname"
+										onKeyup="autotab(this, worker_edit_profile_form.xwp_mobile1, /^[A-Za-z]+$/, 'Please enter a valid last name')"  />
+									</div>
+								</div>
+								<!--		<div class="single-row" style="display:none">
+								<div class="row-left">
+								Your Siteler
+								Account User Name *
+								</div>
+								<div class="row-right">
+								<input type="text" name="username" id="xwp_uname"
+								onKeyup="autotab(this, worker_edit_profile_form.password, /^[A-Za-z0-9]+$/, 'Please enter a valid username, letters and numbers only')"/>
+								<span id="usercheck"></span>
+								</div>
+								</div>
+
+								<div class="single-row">
+								<div class="row-left">
+								Siteler Account Password *
+								</div>
+								<div class="row-right">
+								<input type="text" name="password" id="xwp_upass"/>
+								</div>
+								</div>
+								-->
+								<div class="singlerow">
+									<div class="rowleft">
+										* Mobile
+									</div>
+									<div class="rowright">
+										<div class="ui-grid-b ">
+											<div class="ui-block-a ">
+												<input type="text" class="phone-input" name="mobile1"
+												onKeyup="autotab(this, worker_edit_profile_form.mobile2, /^[0-9]+$/, 'Please enter a valid phone number')"
+												id="xwp_mobile1" placeholder="###" maxlength="3"/>
+											</div>
+											<div class="ui-block-b ">
+												<input type="text" class="phone-input" name="mobile2"
+												onKeyup="autotab(this, worker_edit_profile_form.mobile3, /^[0-9]+$/, 'Please enter a valid phone number')"
+												id="xwp_mobile2" placeholder="###" maxlength="3"/>
+											</div>
+											<div class="ui-block-c ">
+												<input type="text" class="phone-input" name="mobile3"
+												onKeyup="autotab(this, worker_edit_profile_form.email, /^[0-9]+$/, 'Please enter a valid phone number')"
+												id="xwp_mobile3" placeholder="####" maxlength="4"/>
+											</div>
+										</div>
+									</div>
+								</div><!--home phone-->
+								<div class="single-row">
+									<div class="row-left">
+										* Email
+									</div>
+									<div class="row-right">
+										<input type="text" name="email" id="xwp_email"
+										onblur="autotab(this, worker_edit_profile_form.gender,/^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,4}$/,'Please enter a valid email')" />
+										<span id="main_usercheck1"></span>
+									</div>
+								</div>
+								<div class="single-row">
+									<div class="row-left">
+										* Gender
+									</div>
+									<div class="row-right">
+										<select name="gender" id="xwp_gender" >
+											<option value="male">Male</option>
+											<option value="female">Female</option>
+										</select>
+									</div>
+								</div>
+								<div class="single-row">
+									<div class="row-left">
+										* Nationality
+									</div>
+									<div class="row-right">
+										<input type="text" name="nationality" id="xwp_nationality"
+										onKeyup="autotab(this, worker_edit_profile_form.date, /^[A-Za-z]+$/,
+										'Please enter a valid nationality')"/>
+									</div>
+								</div>
+								<div class="single-row dob">
+									<div class="row-left">
+										* Date of Birth
+									</div>
+									<div class="ui-grid-b ">
+										<div class="ui-block-a ">
+											<input type="text" name="date" class="half-input" placeholder="DD" id="xwp_dobday"
+											onKeyup="autotab(this, worker_edit_profile_form.month, /^(0?[1-9]|1[1-9]|2[1-9]|3[01])$/,
+											'Please enter a valid date')"
+											maxlength = "2"/>
+										</div>
+										<div class="ui-block-b ">
+											<input type="text" name="month" class="half-input" placeholder="MM" id="xwp_dobmonth"
+											onblur="autotab(this, worker_edit_profile_form.year,/^(0?[1-9]|1[012])$/,'Please enter valid exp month')" maxlength="2" />
+										</div>
+										<div class="ui-block-c ">
+											<input type="text" name="year" class="half-input" placeholder="YYYY" id="xwp_dobyear"
+											onKeyup="autotab(this, worker_edit_profile_form.ssn, /^20[12][0-9]$/,
+											'Please enter a valid year')" maxlength = "4"/>
+										</div>
+									</div>
+								</div>
+								<div class="single-row">
+									<div class="row-left">
+										* Social Security Number (SSN)
+									</div>
+									<div class="row-right">
+										<input type="text" name="ssn" id="xwp_ssn"
+										onKeyup="autotab(this, worker_edit_profile_form.accountnumber, /^[0-9]{9}$/,
+										'Please enter a 9-digit SSN without space')" maxlength = "9"/>
+									</div>
+								</div><!--SSN-->
+							</div>
+						</div>
+				
+						<!--PAYPAL-->
+						<div class="ui-corner-all custom-corners">
+							<div class="ui-bar ui-bar-a">
+								<h2>Paypal Account</h2>
+							</div>
+							<div class="ui-body ui-body-a">
+								<div class="single-row">
+									<div class="row-right">
+										<input type="text" name="paypalaccount" id="xwp_paypalaccount" />
+										<!--TODO-->
+									</div>
+								</div>
+							</div>
+						</div><!--PAYPAL-->
+						<!-- address -->
+						<div class="ui-corner-all custom-corners">
+							<div class="ui-bar ui-bar-a">
+								<h2>Your Address</h2>
+							</div>
+							<div class="ui-body ui-body-a">
+								<div class="single-row">
+									<div class="row-left">
+										Street
+									</div>
+									<div class="row-right">
+										<input type="text" name="address1" id="xwp_street1" />
+									</div>
+								</div>
+
+
+								<div class="single-row">
+									<div class="row-left">
+										City
+									</div>
+									<div class="row-right">
+										<input type="text" name="city" id="xwp_city"  />
+									</div>
+								</div>
+								<div class="single-row">
+									<div class="row-left" >
+										State
+									</div>
+									<div class="row-right">
+										<!--<input type="text" name="state" />-->
+										<select name="state" id="xwp_state" >
+											<!--state dropdown-->
+											<option value="AL">Alabama</option>
+											<option value="AK">Alaska</option>
+											<option value="AZ">Arizona</option>
+											<option value="AR">Arkansas</option>
+											<option value="CA">California</option>
+											<option value="CO">Colorado</option>
+											<option value="CT">Connecticut</option>
+											<option value="DE">Delaware</option>
+											<option value="DC">District of Columbia</option>
+											<option value="FL">Florida</option>
+											<option value="GA">Georgia</option>
+											<option value="HI">Hawaii</option>
+											<option value="ID">Idaho</option>
+											<option value="IL">Illinois</option>
+											<option value="IN">Indiana</option>
+											<option value="IA">Iowa</option>
+											<option value="KS">Kansas</option>
+											<option value="KY">Kentucky</option>
+											<option value="LA">Louisiana</option>
+											<option value="ME">Maine</option>
+											<option value="MD">Maryland</option>
+											<option value="MA">Massachusetts</option>
+											<option value="MI">Michigan</option>
+											<option value="MN">Minnesota</option>
+											<option value="MS">Mississippi</option>
+											<option value="MO">Missouri</option>
+											<option value="MT">Montana</option>
+											<option value="NE">Nebraska</option>
+											<option value="NV">Nevada</option>
+											<option value="NH">New Hampshire</option>
+											<option value="NJ">New Jersey</option>
+											<option value="NM">New Mexico</option>
+											<option value="NY">New York</option>
+											<option value="NC">North Carolina</option>
+											<option value="ND">North Dakota</option>
+											<option value="OH">Ohio</option>
+											<option value="OK">Oklahoma</option>
+											<option value="OR">Oregon</option>
+											<option value="PA">Pennsylvania</option>
+											<option value="RI">Rhode Island</option>
+											<option value="SC">South Carolina</option>
+											<option value="SD">South Dakota</option>
+											<option value="TN">Tennessee</option>
+											<option value="TX">Texas</option>
+											<option value="UT">Utah</option>
+											<option value="VT">Vermont</option>
+											<option value="VA">Virginia</option>
+											<option value="WA">Washington</option>
+											<option value="WV">West Virginia</option>
+											<option value="WI">Wisconsin</option>
+											<option value="WY">Wyoming</option>
+										</select>
+									</div>
+								</div>
+								<div class="single-row">
+									<div class="row-left">
+										Zipcode
+									</div>
+									<div class="row-right">
+										<input type="text" name="zipcode" id="xwp_zipcode"
+										onKeyup="autotab(this, worker_edit_profile_form.workph3, /^[0-9]+$/,
+										'Please enter a valid zipcode')" maxlength = "5" />
+									</div>
+								</div>
+							</div>
+						</div>
+
+						<input type="submit" value="Submit" data-rel="back" name="submit" />
+					</form>
+				</div>
+			</div><!-- /content -->
+
+			<div data-role="footer" data-position="fixed">
+				<div class="ui-grid-b center">
+					<div class="ui-block-a ">
+						<a href="#worker_page" class="ui-btn ui-shadow ui-corner-all ui-btn-inline ui-icon-back ui-btn-icon-left">Back</a>
+
+					</div>
+					<div class="ui-block-b "></div>
+					<div class="ui-block-c "></div>
+				</div>
+			</div><!-- /footer -->
+
+		</div><!-- /worker_edit_profile_page -->
+
+		<div data-role="page" id="payment_page">
+			<div data-role="header" data-position="fixed" style="background-color:green">
+				<h1 style="color: white">Payment with Paypal</h1>
+
+			</div><!-- /header -->
+			<div role="main" class="ui-content jqm-content">
+				<p>
+					We accept Paypal for payment. Please pay the service charge in advance to make the appointment active.
+				</p>
+				<button id="buyNowBtn">
+					Pay with Paypal
+				</button>
+
+			</div><!-- /content -->
+
+			<div data-role="footer" data-position="fixed">
+				<div class="ui-grid-b center">
+					<div class="ui-block-a ">
+						<a data-rel="back" class="ui-btn ui-shadow ui-corner-all ui-btn-inline ui-icon-back ui-btn-icon-left">Back</a>
+
+					</div>
+					<div class="ui-block-b "></div>
+					<div class="ui-block-c "></div>
+				</div>
+			</div><!-- /footer -->
+		</div><!-- /payment_page -->
+
+		<script type="text/javascript" src="cordova.js"></script>
+		<script type="text/javascript" src="js/index.js"></script>
+
+		<!--	<script type="text/javascript" src="js/example.js"></script>-->
+
+		<script type="text/javascript" src="js/paypal-mobile-js-helper.js"></script>
+
+		<script type="text/javascript" src="js/httprequest.js"></script>
+		<script type="text/javascript" src="js/md5.js"></script>
+		<script type="text/javascript">
+			app.initialize();
+		</script>
+		<script src="js/datepicker/picker.js"></script>
+		<script src="js/datepicker/picker.date.js"></script>
+		<script src="js/datepicker/picker.time.js"></script>
+		<script src="js/datepicker/demo.js"></script>
+		<script src="js/form_handler.js"></script>
+		<script src="js/form_processing.js"></script>
+
+
+	</body>
 </html>

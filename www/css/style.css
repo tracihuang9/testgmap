@@ -6,9 +6,10 @@ html, body, #container {
 }
 #map_canvas {
   width: 100%;
-  min-height: 300px;
+  min-height: 250px;
   height: 50%;
   position: relative;
+
 }
 /*
 code {
