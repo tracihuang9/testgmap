@@ -1,0 +1,116 @@
+<div id="one">
+	<div id="map_canvas"></div>
+
+</div>
+<button id="direction" data-ajax="false">
+	Click to get Job Site Direction
+</button>
+
+<select name="list-select" id="list-select">
+     <option value="">Select a Job Site</option>
+     <option value="Google">Google</option>
+     <option value="LinkedIn">LinkedIn</option>
+     <option value="Intel">Intel</option>
+     <option value="Apple">Apple</option>
+     <option value="HP">HP</option>
+     <option value="Yahoo">Yahoo</option>
+     <option value="Facebook">Facebook</option>
+     <option value="Wells Fargo">Wells Fargo</option>
+     <option value="Cisco">Cisco</option>
+</select>
+ 
+<div class="address"></div>
+<div class="city"></div>
+<div class="lat"></div>
+<div class="long"></div>
+
+<script type="text/javascript">
+//var myLocation = null;
+	$(document).one("pageLoad", function(event, map) {
+		var coordinates = "test";
+		 $("#direction").click(function() {
+				//	alert("ok");
+			app.showConfirm("Do you want to go?","Get Direction",["Yes","No"], getDirection, donothing);
+		});
+		function donothing()
+		{
+			
+		}
+		
+		function getDirection()
+		{
+				//alert("ok");
+				plugin.google.maps.external.launchNavigation({
+					"from" : myLocation,
+					"to" : SITELER
+				});
+		}
+		if(!map){
+			 var div = $("#map_canvas")[0];
+       		 map = plugin.google.maps.Map.getMap(div);
+		}
+		else
+		{
+			map.clear();
+			map.off();
+			map.setDiv($("#map_canvas")[0]);
+			map.setVisible(true);
+		}
+		
+		$("#list-select").change(function() {
+    	var selectvalue = $(this).val();
+    	//$("#list_target").html('<option value="">Loading...</option>');
+	//alert(selectvalue);	 
+    	if (selectvalue == "") {
+       	//$("#list_target").html(initial_target_html);
+    	} else {
+      	$.ajax({
+      		url:  base_url +'get_coordinates.php?svalue='+selectvalue,
+      		data:'id=testdata',
+             	success: function(output) {
+                //$("target").html(output);
+                //$("div.address").html("<span class='red'>"+output+"</span>");
+                coor = output.split(",");
+          	 for (a in coor){
+          	 	coor[a] = parseFloat(coor[a]);
+          	 }
+                
+                var lat = coor[0];
+          	 var long = coor[1];
+                //lat = 37; long = -122;
+		//const SITELER = new plugin.google.maps.LatLng(37.421656, -122.085618);
+		SITELER = new plugin.google.maps.LatLng(lat, long);
+		map.moveCamera({
+			'target' : SITELER,
+			//'tilt' : 90,
+			'zoom' : 8,
+			'bearing' : 0
+		});
+		map.addMarker({
+			'position' : SITELER,
+			'title' : 'job site',
+			'icon' : 'www/images/green-1.png'
+		}, function(marker) {
+			marker.showInfoWindow();
+		});
+            },
+          error: function (xhr, ajaxOptions, thrownError) {
+            alert(xhr.status + " "+ thrownError);
+          }});
+        }
+    });
+          	 //alert('coordinates2 '+coordinates);
+          	 /*var coor = new Array();
+          	 coor = coordinates.split(",");
+          	 for (a in coor){
+          	 	coor[a] = parseFloat(coor[a]);
+          	 }
+          	 var lat = coor[0];
+          	 alert(lat);
+          	 var long = coor[1];
+          	 alert(long);*/
+          	 
+		showMyLocation(map);
+	
+	});
+</script>

@@ -1,0 +1,132 @@
+
+<html>
+	
+			<form >
+
+				
+				<select name="service_city" id="service_city" >
+
+				</select>
+				<table style="width:100%;">
+					<tr></tr><td>
+				<select name="service_state" id="service_state" onchange="updateCityList();" >
+
+				</select>
+</td><td>
+				<input type="text" name="service_zip" id="service_zip" placeholder="zip code" style="width:70%;"/></td>
+				</tr>
+				</table>
+				
+							
+					<select name="v1make" id="otc_v1make"  ></select>
+					<select name="v1model" id="otc_v1model"  ></select>
+					<select name="v1color" id="otc_v1color"  ></select>
+				
+				<button id="service_checkBtn" name="service_checkBtn">
+					Check Service Area
+				</button>
+
+			</form>
+			
+				<script type="text/javascript">
+				
+				
+				
+				
+	
+					
+					
+					var color_list=["red","white", "black", "blue", "green", "silver", "other"];
+
+var vehicle_make ={"Ford":["Focus", "Mustang", "Explore", "Other"],
+					"Honda":["Civic","Accord","Pilot", "Other"], 
+					"Toyata":["Corola", "Camery", "Other"]};
+					
+					
+								function fillListOption(name,list) {
+				//	var state_selected = $('#service_state').val();
+
+				$('#'+name+' option').remove();
+
+				$.each(list, function(i.value) {
+
+					$('#'+name).append($("<option></option>").attr("value", value).text(value));
+
+				});
+
+			}
+
+		/*	function fillLevelOneOption(name,list) {
+				//	var state_selected = $('#service_state').val();
+
+				$('#'+name+' option').remove();
+
+				$.each(list, function(value) {
+
+					$('#'+name).append($("<option></option>").attr("value", value).text(value));
+
+				});
+
+			}*/
+			
+fillListOption('otc_v1color',color_list);
+
+				
+				//map.remove();
+			var dataArr = ["EAST MEADOW", "WEST BURY"];
+
+			// Removes all options for the select box
+			$('#optExample option').remove();
+
+			// .each loops through the array
+			$.each(dataArr, function(i) { {
+					$('#optExample').append($("<option></option>").attr("value", dataArr[i]).text(dataArr[i]));
+				}
+			});
+
+			var city_list = {
+				"CA" : ["ATHERTON", "BELMONT", "CAMPBELL", "CUPERTINO", "DALY CITY", "EAST PALO ALTO", "FOSTER CITY", "FREMONT", "GILROY", "LOS ALTOS", "LOS GATOS", "MENLO PARK", "MILPITAS", "MOUNTAIN VIEW", "PALO ALTO", "REDWOOD CITY", "SAN CARLOS", "SAN FRANCISCO", "SAN JOSE", "SAN MATEO", "SANTA CLARA", "SARATOGA", "SOUTH SAN FRANCISCO", "SUNNYVALE", "WOODSIDE"],
+				"NY" : ["EAST MEADOW", "WEST BURY"]
+			};
+			updateStateList();
+			updateCityList();
+
+			//$('#service_city option').remove();
+
+			// var city = Array ();
+			//  city= city_list['CA'];
+
+			function updateCityList() {
+				var state_selected = $('#service_state').val();
+				//$('#service_city').empty();
+				$('#service_city option').remove();
+				$.each(city_list[state_selected], function(i, city) {
+					if(city ==="SAN FRANCISCO")					
+						$('#service_city').append($("<option selected></option>").attr("value", city).text(city));
+
+					else
+						$('#service_city').append($("<option></option>").attr("value", city).text(city));
+
+				});
+
+			}
+			function updateStateList() {
+				//	var state_selected = $('#service_state').val();
+
+				$('#service_state option').remove();
+
+				$.each(city_list, function(state) {
+
+					$('#service_state').append($("<option></option>").attr("value", state).text(state));
+
+				});
+
+			}
+
+
+
+		</script>
+	
+</html>
+	
+	
