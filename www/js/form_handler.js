@@ -1831,7 +1831,7 @@ $('form').submit(function() {
 	case 'login_form':
 		signin_uname = $('#login_uname').val();
 		signin_upass = $('#login_upassword').val();
-		alert(postData);
+		//	alert(postData);
 		//	alert(siteler_id);
 
 		var phpurl = base_url + 'user_login.php';

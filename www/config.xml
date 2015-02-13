@@ -1,8 +1,8 @@
 <?xml version='1.0' encoding='utf-8'?>
 <widget id="com.xinlutang.SitelerApp" version="1.0.0" xmlns="http://www.w3.org/ns/widgets" xmlns:gap="http://phonegap.com/ns/1.0">
-    <name>SitelerApp</name>
+    <name>SideMenu</name>
     <description>
-        SItelerApp
+        SItelerApp with side menu
     </description>
     <author email="support@phonegap.com" href="http://phonegap.com">
         Xinlu Tang
@@ -72,8 +72,10 @@
     </gap:plugin>
     -->
      <gap:plugin name="com.paypal.cordova.mobilesdk" source="plugins.cordova.io"  />
+
     
-     <icon src="icon.png" />
+    
+    <icon src="icon.png" />
     <icon gap:platform="android" gap:qualifier="ldpi" src="www/res/icon/android/icon-36-ldpi.png" />
     <icon gap:platform="android" gap:qualifier="mdpi" src="www/res/icon/android/icon-48-mdpi.png" />
     <icon gap:platform="android" gap:qualifier="hdpi" src="www/res/icon/android/icon-72-hdpi.png" />
@@ -86,20 +88,17 @@
     <icon gap:platform="ios" height="144" src="www/res/icon/ios/icon-72-2x.png" width="144" />
     <icon gap:platform="webos" src="www/res/icon/webos/icon-64.png" />
     <icon gap:platform="winphone" src="www/res/icon/windows-phone/icon-48.png" />
-    <icon gap:platform="winphone" gap:role="background" src="www/res/icon/windows-phone/Default.png" />
-    <gap:splash gap:platform="android" gap:qualifier="port-ldpi" src="splash/android/screen-ldpi-portrait.png" />
-    <gap:splash gap:platform="android" gap:qualifier="port-mdpi" src="splash/android/screen-mdpi-portrait.png" />
-    <gap:splash gap:platform="android" gap:qualifier="port-hdpi" src="splash/android/screen-hdpi-portrait.png" />
-    <gap:splash gap:platform="android" gap:qualifier="port-xhdpi" src="splash/android/screen-xhdpi-portrait.png" />
+    <icon gap:platform="winphone" gap:role="background" src="www/res/icon/windows-phone/icon-173-tile.png" />
+    <gap:splash gap:platform="android" gap:qualifier="port-ldpi" src="www/res/screen/android/screen-ldpi-portrait.png" />
+    <gap:splash gap:platform="android" gap:qualifier="port-mdpi" src="www/res/screen/android/screen-mdpi-portrait.png" />
+    <gap:splash gap:platform="android" gap:qualifier="port-hdpi" src="www/res/screen/android/screen-hdpi-portrait.png" />
+    <gap:splash gap:platform="android" gap:qualifier="port-xhdpi" src="www/res/screen/android/screen-xhdpi-portrait.png" />
     <gap:splash gap:platform="blackberry" src="www/res/screen/blackberry/screen-225.png" />
-    <splash src="splash.png" />
-    <gap:splash src="splash/ios/Default.png" gap:platform="ios" width="320" height="480" />
-    <gap:splash src="splash/ios/Default@2x.png" gap:platform="ios" width="640" height="960" />
-    <gap:splash src="splash/ios/Default-568h@2x.png" gap:platform="ios" width="640" height="1136" />
-    <gap:splash src="splash/ios/Default-Portrait.png" gap:platform="ios" width="768" height="1024" />
-    <gap:splash src="splash/ios/Default-Landscape.png" gap:platform="ios" width="1024" height="768" />
-    <gap:splash src="splash/ios/Default-Portrait@2x.png" gap:platform="ios" width="1536" height="2048" />
-    <gap:splash src="splash/ios/Default-Landscape@2x.png" gap:platform="ios" width="2048" height="1536" />
+    <gap:splash gap:platform="ios" height="480" src="www/res/screen/ios/screen-iphone-portrait.png" width="320" />
+    <gap:splash gap:platform="ios" height="960" src="www/res/screen/ios/screen-iphone-portrait-2x.png" width="640" />
+    <gap:splash gap:platform="ios" height="1136" src="www/res/screen/ios/screen-iphone-portrait-568h-2x.png" width="640" />
+    <gap:splash gap:platform="ios" height="1024" src="www/res/screen/ios/screen-ipad-portrait.png" width="768" />
+    <gap:splash gap:platform="ios" height="768" src="www/res/screen/ios/screen-ipad-landscape.png" width="1024" />
     <gap:splash gap:platform="winphone" src="www/res/screen/windows-phone/screen-portrait.jpg" />
     <access origin="*" />
 </widget>
