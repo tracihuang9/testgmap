@@ -1,19 +1,18 @@
 <?xml version='1.0' encoding='utf-8'?>
 <widget id="com.xinlutang.SitelerApp" version="1.0.0" xmlns="http://www.w3.org/ns/widgets" xmlns:gap="http://phonegap.com/ns/1.0">
-    <name>SideMenu</name>
+    <name>TestGmap_firstpage</name>
     <description>
-        SItelerApp with side menu
+        Hello World sample application that responds to the deviceready event.
     </description>
     <author email="support@phonegap.com" href="http://phonegap.com">
-        Xinlu Tang
+        PhoneGap Team
     </author>
-      <content src="index.html" />
+    <content src="index.html" />
     <preference name="permissions" value="none" />
     <preference name="phonegap-version" value="3.6.3" />
     <preference name="orientation" value="default" />
     <preference name="target-device" value="universal" />
-    <!--switch between true and false to solve android keyboard issue-->
-    <preference name="fullscreen" value="false" />
+    <preference name="fullscreen" value="true" />
     <preference name="webviewbounce" value="true" />
     <preference name="prerendered-icon" value="true" />
     <preference name="stay-in-webview" value="false" />
@@ -24,14 +23,7 @@
     <preference name="auto-hide-splash-screen" value="true" />
     <preference name="disable-cursor" value="false" />
     <preference name="android-minSdkVersion" value="7" />
-    <preference name="android-installLocation" value="auto" /> 
-    <!-- test android scroll issue -->
-    <preference name="DisallowOverscroll" value="true" />   
-    <!--attempt 2 to fix the android scroll issue 
-    <preference name="android-windowSoftInputMode" value="stateVisible|adjustResize" />
-    -->
-
-    
+    <preference name="android-installLocation" value="auto" />
     <gap:plugin name="org.apache.cordova.battery-status" />
     <gap:plugin name="org.apache.cordova.camera" />
     <gap:plugin name="org.apache.cordova.media-capture" />
@@ -50,29 +42,14 @@
     <gap:plugin name="org.apache.cordova.network-information" />
     <gap:plugin name="org.apache.cordova.splashscreen" />
     <gap:plugin name="org.apache.cordova.vibration" />
-    <!--
-       <gap:plugin name="com.phonegap.plugins.mapkit"  source="plugins.cordova.io"  >
-  		<param name="APIKey" value="AIzaSyAOS5wLRjC7xYjrdAscuoSPV7JxBwGRXmE" />
-    </gap:plugin>
-    -->
+
+    <gap:plugin name="com.millerjames01.sqlite-plugin" version="1.0.1" />
+        <gap:plugin name="com.phonegap.plugins.barcodescanner" />
+    
     <gap:plugin name="plugin.google.maps"  source="plugins.cordova.io"  >
   		<param name="API_KEY_FOR_IOS" value="AIzaSyAOS5wLRjC7xYjrdAscuoSPV7JxBwGRXmE" />
-        <param name="API_KEY_FOR_ANDROID" value="AIzaSyDhw8Bgg3wZ0QuJhVPeo9yThMb5uiqlr7w" />
+  		<param name="API_KEY_FOR_ANDROID" value="AIzaSyDhw8Bgg3wZ0QuJhVPeo9yThMb5uiqlr7w" />
     </gap:plugin>
-    
-    
-    <gap:plugin name="com.millerjames01.sqlite-plugin" version="1.0.1" />
-    
-    <gap:plugin name="com.phonegap.plugins.barcodescanner" />
-    
-    <gap:plugin name="com.synconset.cordovahttp"  source="plugins.cordova.io" />
-<!--
-    <gap:plugin name="com.phonegap.plugins.mapkit"  source="plugins.cordova.io"/>
-  		<param name="APIKey" value="AIzaSyDQC9sMh3b3_vhe2gbI_-WyiBzRte88KmY" />
-    </gap:plugin>
-    -->
-     <gap:plugin name="com.paypal.cordova.mobilesdk" source="plugins.cordova.io"  />
-
     
     
     <icon src="icon.png" />
